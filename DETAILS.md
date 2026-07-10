@@ -7,6 +7,9 @@
 💻 **Code:** https://github.com/PugarHuda/kembali
 ⛓️ **Live on HashKey mainnet (177):** [Kembali `0xDea6…209d`](https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d)
 
+✅ **Proven live on mainnet** — the full reversal flow executed end-to-end (buyer paid 100 kUSD, merchant didn't deliver, buyer reclaimed it — balance back to 1000):
+[OPEN](https://hashkey.blockscout.com/tx/0xf22a8fab1a919deaf4c0f2e1f76f4d69a79027b46e4f087810875d7acc0e2713) → [REFUND](https://hashkey.blockscout.com/tx/0xa34225a8bf90cf91d65f0630c2d44ad91da4ff500e8c6eef70fd3b63a9c3cf39) → [WITHDRAW](https://hashkey.blockscout.com/tx/0xfb19cb5d90c11f5408e484e52415a7584e5671878a9840dca080575f899ad096)
+
 ---
 
 ## The problem
