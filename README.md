@@ -46,8 +46,10 @@ Safety / hardening:
 - **CEI + `lock` reentrancy guard** on every money path; exact-asset enforcement; funds can only
   ever reach `payer` or `merchant`.
 
-## Test
+## Build & test
 ```bash
+git clone --recursive https://github.com/PugarHuda/kembali   # --recursive fetches forge-std
+cd kembali
 forge test            # 57 unit + 1 invariant: DvP, refund, relayer, EIP-1271, revoke, window-closed,
                       # compliance-rejected, reentrancy, SafeERC20, fuzz-conservation, access control.
                       # invariant_accounting holds over 128k random open/fulfill/refund/withdraw calls:
