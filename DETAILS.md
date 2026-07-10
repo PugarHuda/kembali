@@ -50,6 +50,8 @@ Not a prototype — a hardened contract with an adversarial test suite:
 - **SafeERC20 + balance asserts** — no-bool (USDT) tokens work; fee-on-transfer / "lying" tokens rejected.
 - **Encoding proven** — mandate digest & binding cross-checked byte-identical between the dApp (ethers) and Solidity; the full flow was executed end-to-end against a live chain.
 - **Clean `forge lint`; identical under optimizer + via-IR.** One bug found in review (ERC20 zero-item) — fixed.
+- **Deployment integrity:** the on-chain runtime bytecode is **byte-identical** to this audited source (incl. metadata) — the live mainnet contract *is* the tested code, verified.
+- **Proven live on mainnet 177:** the full reversal flow (open → refund → withdraw) executed with real transactions.
 
 ## HSP usage (honest, and verified against the real SDK)
 
