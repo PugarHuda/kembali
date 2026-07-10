@@ -18,8 +18,9 @@ contract Deploy is Script {
     function run() external {
         uint256 pk = vm.envUint("PRIVATE_KEY");
         address me = vm.addr(pk);
-        address payer = vm.envOr("PAYER", me); // buyer account
-        require(payer != me, "Set PAYER to a SECOND account (escrow forbids payer == merchant)");
+        address payer = vm.envOr("PAYER", me); // buyer account; defaults to deployer (mint kUSD there).
+        // Note: the escrow forbids payer == merchant at open() time — for the live 2-account demo,
+        // mint kUSD to your second wallet via DemoUSDC.mint (it is public).
 
         vm.startBroadcast(pk);
         Kembali k = new Kembali();

@@ -74,9 +74,11 @@ reconciled with `@hsp/core` for a live Coordinator — an integration step, not 
 ## Links
 - Repo: https://github.com/PugarHuda/kembali
 - Live dApp: https://kembali-dapp-hudas-projects-a8e7f558.vercel.app
-- Live contract (Blockscout): `https://hashkey.blockscout.com/address/<Kembali address>` (after deploy)
+- **Live on HashKey mainnet (chain 177):**
+  - Kembali: https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d
+  - DemoUSDC: `0x481fE34ed995603abdB9998b7eCc8811e2707d87`
+  - DemoNFT: `0x6091e0111fB0F94fAE4b9D3Bbb0c36dD72D43454`
 - Demo video: `<url>` (record via DEMO.md, add after)
-- Deploy tx: `<tx hash>` (after deploy)
 
 ## What's next
 Wire the live HSP Coordinator Receipt/verify loop; compliant payments (KYC/sanctions attestations) to

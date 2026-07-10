@@ -28,24 +28,29 @@
 
   <fieldset>
     <legend>Contract</legend>
-    <label>Kembali address</label>
-    <input id="kembali" placeholder="0x… deployed Kembali" />
+    <label>Kembali address (live on HashKey mainnet 177)</label>
+    <input id="kembali" value="0xDea6Da93265871d828B20cace2BADd5F5e70209d" />
     <label>Payment id (bytes32) — auto-filled on Open; paste to fulfill/refund</label>
     <input id="pid" placeholder="0x… (mandate digest)" />
+    <div class="row">
+      <button id="mintUsd" class="alt">Dev: mint 1000 test kUSD to me</button>
+      <button id="mintNft" class="alt">Dev: mint a demo NFT to me (be merchant)</button>
+    </div>
+    <small>Free test assets on the deployed DemoUSDC/DemoNFT — needs a little HSK for gas.</small>
   </fieldset>
 
   <fieldset>
     <legend>Payer — open escrow</legend>
     <div class="row">
-      <div><label>Merchant</label><input id="merchant" placeholder="0x…" /></div>
-      <div><label>Pay token (USDC.e)</label><input id="token" value="0x054ed45810DbBAb8B27668922D110669c9D88D0a" /></div>
+      <div><label>Merchant (seeded: owns demo NFT #1)</label><input id="merchant" value="0x39D2bae5EAedA9283535dDC98F1991c81eD5Cd7E" /></div>
+      <div><label>Pay token (DemoUSDC, 6 dec)</label><input id="token" value="0x481fE34ed995603abdB9998b7eCc8811e2707d87" /></div>
     </div>
     <div class="row">
       <div><label>Amount (6 dec, e.g. 100000000 = 100)</label><input id="amount" value="100000000" /></div>
       <div><label>Window (sec)</label><input id="window" value="86400" /></div>
     </div>
     <div class="row">
-      <div><label>Deliverable asset</label><input id="asset" placeholder="0x… NFT or RWA token" /></div>
+      <div><label>Deliverable asset (DemoNFT)</label><input id="asset" value="0x6091e0111fB0F94fAE4b9D3Bbb0c36dD72D43454" /></div>
       <div><label>Item (tokenId or ERC20 amount)</label><input id="item" value="1" /></div>
       <div><label>Kind (0=NFT, 1=ERC20)</label><input id="kind" value="0" /></div>
     </div>
@@ -112,6 +117,19 @@ $("approve").onclick = () => run(async () => {
   const t = new ethers.Contract($("token").value, ERC20, signer);
   const tx = await t.approve($("kembali").value, BigInt($("amount").value)); await tx.wait();
   return "Approved. tx " + tx.hash;
+});
+$("mintUsd").onclick = () => run(async () => {
+  const me = await signer.getAddress();
+  const c = new ethers.Contract($("token").value, ["function mint(address,uint256)"], signer);
+  const tx = await c.mint(me, 1000000000n); await tx.wait();
+  return "Minted 1000 test kUSD to " + me + ". tx " + tx.hash;
+});
+$("mintNft").onclick = () => run(async () => {
+  const me = await signer.getAddress();
+  const c = new ethers.Contract($("asset").value, ["function mint(address) returns (uint256)","function nextId() view returns (uint256)"], signer);
+  const tx = await c.mint(me); await tx.wait();
+  const id = await c.nextId();
+  return "Minted demo NFT #" + id + " to you. To sell it: set Merchant = your address, Item = " + id + ". tx " + tx.hash;
 });
 $("open").onclick = () => run(async () => {
   const me = await signer.getAddress();
