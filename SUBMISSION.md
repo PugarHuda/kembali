@@ -72,11 +72,11 @@ no hosted Coordinator needed). Honest note: profile-tagging of `signer`/`recipie
 reconciled with `@hsp/core` for a live Coordinator — an integration step, not a redesign.
 
 ## Links
-- Repo: `<github url>`
-- Live contract (Blockscout): `https://hashkey.blockscout.com/address/<Kembali address>`
-- Demo video: `<url>`
-- Demo dApp: `web/index.html` (see DEMO.md for the exact walkthrough)
-- Deploy tx: `<tx hash>`
+- Repo: https://github.com/PugarHuda/kembali
+- Live dApp: https://kembali-dapp-hudas-projects-a8e7f558.vercel.app
+- Live contract (Blockscout): `https://hashkey.blockscout.com/address/<Kembali address>` (after deploy)
+- Demo video: `<url>` (record via DEMO.md, add after)
+- Deploy tx: `<tx hash>` (after deploy)
 
 ## What's next
 Wire the live HSP Coordinator Receipt/verify loop; compliant payments (KYC/sanctions attestations) to
