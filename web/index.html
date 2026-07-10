@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kembali — Reversible Payments</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.0/dist/ethers.umd.min.js"></script>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 15px/1.5 system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { margin-bottom: .2rem; } .sub { opacity: .7; margin-top: 0; }
+  fieldset { border: 1px solid #8884; border-radius: 10px; margin: 1rem 0; padding: 1rem; }
+  legend { font-weight: 600; padding: 0 .4rem; }
+  label { display: block; font-size: 13px; opacity: .8; margin-top: .5rem; }
+  input { width: 100%; padding: .5rem; border: 1px solid #8886; border-radius: 6px; background: transparent; color: inherit; }
+  button { padding: .55rem 1rem; border: 0; border-radius: 8px; background: #4f46e5; color: #fff; font-weight: 600; cursor: pointer; margin-top: .8rem; }
+  button.alt { background: #0891b2; } button.warn { background: #b45309; }
+  #log { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 12.5px; background: #8881; border-radius: 8px; padding: .8rem; min-height: 3rem; }
+  .row { display: flex; gap: .6rem; flex-wrap: wrap; } .row > * { flex: 1; }
+  small { opacity: .6; }
+</style>
+</head>
+<body>
+  <h1>Kembali</h1>
+  <p class="sub">Reversible stablecoin payments on HashKey Chain (177). Money comes back if you don't get what you paid for.</p>
+
+  <button id="connect">Connect wallet</button> <span id="acct"></span>
+
+  <fieldset>
+    <legend>Contract</legend>
+    <label>Kembali address</label>
+    <input id="kembali" placeholder="0x… deployed Kembali" />
+    <label>Payment id (bytes32) — auto-filled on Open; paste to fulfill/refund</label>
+    <input id="pid" placeholder="0x… (mandate digest)" />
+  </fieldset>
+
+  <fieldset>
+    <legend>Payer — open escrow</legend>
+    <div class="row">
+      <div><label>Merchant</label><input id="merchant" placeholder="0x…" /></div>
+      <div><label>Pay token (USDC.e)</label><input id="token" value="0x054ed45810DbBAb8B27668922D110669c9D88D0a" /></div>
+    </div>
+    <div class="row">
+      <div><label>Amount (6 dec, e.g. 100000000 = 100)</label><input id="amount" value="100000000" /></div>
+      <div><label>Window (sec)</label><input id="window" value="86400" /></div>
+    </div>
+    <div class="row">
+      <div><label>Deliverable asset</label><input id="asset" placeholder="0x… NFT or RWA token" /></div>
+      <div><label>Item (tokenId or ERC20 amount)</label><input id="item" value="1" /></div>
+      <div><label>Kind (0=NFT, 1=ERC20)</label><input id="kind" value="0" /></div>
+    </div>
+    <button id="approve" class="alt">1. Approve</button>
+    <button id="open">2. Open escrow</button>
+  </fieldset>
+
+  <fieldset>
+    <legend>Merchant / Payer — settle</legend>
+    <button id="approveDeliv" class="alt">Merchant: approve deliverable → Kembali</button>
+    <div class="row">
+      <button id="fulfill">Merchant: fulfill (deliver + get paid)</button>
+      <button id="refund" class="warn">Payer: refund (after window)</button>
+      <button id="cancel" class="warn">Merchant: cancel</button>
+    </div>
+    <div class="row">
+      <button id="withdraw">Withdraw my credited funds (token above)</button>
+      <button id="status" class="alt">Read status</button>
+    </div>
+  </fieldset>
+
+  <div id="log">—</div>
+
+<script>
+const HSK = { chainId: "0xB1", chainName: "HashKey Chain", nativeCurrency: { name: "HSK", symbol: "HSK", decimals: 18 },
+  rpcUrls: ["https://mainnet.hsk.xyz"], blockExplorerUrls: ["https://hashkey.blockscout.com"] }; // 0xB1 = 177
+const MANDATE_TUPLE = "(bytes32 nonce,address signer,bytes32 grantRef,bytes32 requirementRef,address recipient,address token,uint256 amount,uint256 chainId,uint256 deadline,bytes32 settlementBinding,bytes32 requiredCapabilitiesHash)";
+const ABI = [
+  `function open(${MANDATE_TUPLE} m,bytes signature,address merchant,address asset,uint256 item,uint8 kind,uint64 window) returns (bytes32)`,
+  "function fulfill(bytes32 id)","function refund(bytes32 id)","function cancel(bytes32 id)","function withdraw(address token)",
+  "function payments(bytes32) view returns (address payer,address merchant,address token,uint256 amount,address asset,uint256 item,uint8 kind,uint64 deadline,uint8 status)",
+];
+const ERC20 = ["function approve(address,uint256) returns (bool)"];
+const STATUS = ["NONE","HELD","RELEASED","REFUNDED"];
+const ZERO32 = "0x" + "00".repeat(32);
+const TYPES = { Mandate: [
+  {name:"nonce",type:"bytes32"},{name:"signer",type:"address"},{name:"grantRef",type:"bytes32"},
+  {name:"requirementRef",type:"bytes32"},{name:"recipient",type:"address"},{name:"token",type:"address"},
+  {name:"amount",type:"uint256"},{name:"chainId",type:"uint256"},{name:"deadline",type:"uint256"},
+  {name:"settlementBinding",type:"bytes32"},{name:"requiredCapabilitiesHash",type:"bytes32"},
+]};
+const $ = (id) => document.getElementById(id);
+const log = (m) => { $("log").textContent = typeof m === "string" ? m : JSON.stringify(m, null, 2); };
+const pid = () => $("pid").value.trim();
+
+let signer;
+async function ensureChain() {
+  try { await ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: HSK.chainId }] }); }
+  catch (e) { if (e.code === 4902) await ethereum.request({ method: "wallet_addEthereumChain", params: [HSK] }); else throw e; }
+}
+$("connect").onclick = async () => {
+  if (!window.ethereum) return log("No wallet found. Install MetaMask.");
+  await ethereum.request({ method: "eth_requestAccounts" });
+  await ensureChain();
+  signer = await new ethers.BrowserProvider(ethereum).getSigner();
+  $("acct").textContent = await signer.getAddress();
+  log("Connected on HashKey Chain 177.");
+};
+const k = () => new ethers.Contract($("kembali").value, ABI, signer);
+
+async function run(fn) { try { log("…sending"); const r = await fn(); log(r); } catch (e) { log("ERROR: " + (e.shortMessage || e.message)); } }
+
+$("approve").onclick = () => run(async () => {
+  const t = new ethers.Contract($("token").value, ERC20, signer);
+  const tx = await t.approve($("kembali").value, BigInt($("amount").value)); await tx.wait();
+  return "Approved. tx " + tx.hash;
+});
+$("open").onclick = () => run(async () => {
+  const me = await signer.getAddress();
+  const kembali = $("kembali").value, merchant = $("merchant").value, asset = $("asset").value, token = $("token").value;
+  // J3: validate inputs up front with clear errors
+  for (const [name, v] of [["Kembali", kembali], ["merchant", merchant], ["token", token], ["asset", asset]])
+    if (!ethers.isAddress(v)) throw new Error(`${name} is not a valid address`);
+  const amount = BigInt($("amount").value), item = BigInt($("item").value), window = BigInt($("window").value);
+  const kind = Number($("kind").value);
+  if (amount <= 0n || window <= 0n) throw new Error("amount and window must be > 0");
+  // J1: read chainId from the connected network (don't hardcode). J2: use chain time, not client clock.
+  const provider = signer.provider;
+  const cid = Number((await provider.getNetwork()).chainId);
+  const now = BigInt((await provider.getBlock("latest")).timestamp);
+  const domain = { name: "HSP", version: "1", chainId: cid, verifyingContract: kembali };
+  const binding = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
+    ["address","address","uint256","uint8","uint64"], [merchant, asset, item, kind, window]));
+  const mandate = { nonce: ethers.hexlify(ethers.randomBytes(32)), signer: me, grantRef: ZERO32,
+    requirementRef: ZERO32, recipient: kembali, token, amount,
+    chainId: BigInt(cid), deadline: now + window,
+    settlementBinding: binding, requiredCapabilitiesHash: ethers.keccak256("0x") };
+  const id = ethers.TypedDataEncoder.hash(domain, TYPES, mandate);
+  const sig = await signer.signTypedData(domain, TYPES, mandate);
+  const tx = await k().open(Object.values(mandate), sig, merchant, asset, item, kind, window);
+  await tx.wait(); $("pid").value = id;
+  return "Escrow opened. id " + id + "\ntx " + tx.hash;
+});
+const NFT_ABI = ["function setApprovalForAll(address,bool)"];
+$("approveDeliv").onclick = () => run(async () => {
+  if (Number($("kind").value) === 0) { // ERC721: approve Kembali to pull the NFT
+    const c = new ethers.Contract($("asset").value, NFT_ABI, signer);
+    const tx = await c.setApprovalForAll($("kembali").value, true); await tx.wait();
+    return "Deliverable NFT approved to Kembali. tx " + tx.hash;
+  }
+  const c = new ethers.Contract($("asset").value, ERC20, signer); // ERC20 RWA amount
+  const tx = await c.approve($("kembali").value, BigInt($("item").value)); await tx.wait();
+  return "Deliverable RWA amount approved to Kembali. tx " + tx.hash;
+});
+$("fulfill").onclick = () => run(async () => { const tx = await k().fulfill(pid()); await tx.wait(); return "Delivered. Merchant credited — click Withdraw to pull funds. tx " + tx.hash; });
+$("refund").onclick  = () => run(async () => { const tx = await k().refund(pid());  await tx.wait(); return "Refund credited to payer — click Withdraw to pull funds. tx " + tx.hash; });
+$("cancel").onclick  = () => run(async () => { const tx = await k().cancel(pid());  await tx.wait(); return "Cancelled → payer credited. Payer must Withdraw. tx " + tx.hash; });
+$("withdraw").onclick = () => run(async () => { const tx = await k().withdraw($("token").value); await tx.wait(); return "Withdrawn credited funds. tx " + tx.hash; });
+$("status").onclick  = () => run(async () => {
+  const p = await k().payments(pid());
+  return { payer: p.payer, merchant: p.merchant, amount: p.amount.toString(), asset: p.asset,
+    item: p.item.toString(), kind: Number(p.kind) === 0 ? "ERC721" : "ERC20",
+    deadline: new Date(Number(p.deadline) * 1000).toISOString(), status: STATUS[Number(p.status)] };
+});
+</script>
+</body>
+</html>

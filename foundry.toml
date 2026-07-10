@@ -1,0 +1,12 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.24"
+evm_version = "paris"   # ponytail: max L2 compat — avoid PUSH0/cancun opcodes some L2s reject
+
+[rpc_endpoints]
+hashkey = "https://mainnet.hsk.xyz"          # HashKey Chain mainnet, chainId 177
+
+[etherscan]
+hashkey = { key = "any", url = "https://hashkey.blockscout.com/api", chain = 177 }

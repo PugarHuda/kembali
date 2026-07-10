@@ -1,0 +1,88 @@
+# DoraHacks BUIDL — paste-ready copy
+
+Fill the `<...>` placeholders after deploy. Written to match the honest scope (no overclaim).
+
+---
+
+## Name
+**Kembali**
+
+## Tagline (one line)
+Reversible stablecoin payments on HashKey Chain — HSP settles finality, Kembali gives it a way back.
+
+## Track
+**DeFi** (HSP payment dApp · RWA settlement)
+
+## Tags
+`DeFi` `HSP` `RWA` `Payments` `HashKey Chain` `Crypto-AI`
+
+---
+
+## Short description (card, ~2 lines)
+HSP makes stablecoin settlement final; real commerce needs recourse. Kembali escrows payment against
+an on-chain deliverable + deadline: merchant delivers → atomic DvP; doesn't → the buyer's money comes
+back. Trustless, no arbiter, HSP-native, live on HashKey mainnet.
+
+## Full description
+
+**The problem.** HSP makes stablecoin settlement verifiable and *final* — great for trust, fatal for
+adoption. Commerce needs recourse: refunds, non-delivery protection, a way to get your money back.
+Crypto payments have no chargeback. Across this hackathon's submissions, every payment/agent project
+builds control *before* money moves (approve-before-pay, maker-checker, risk scanners). **None gives
+the payer recourse *after* money moves.** Kembali owns that empty lane.
+
+**The solution.** Funds don't go straight to the merchant — they sit in a Kembali escrow bound to an
+agreed **on-chain deliverable + deadline**:
+- Merchant delivers the exact agreed asset before the deadline → **atomic delivery-vs-payment**
+  (asset → payer, funds → merchant).
+- Merchant fails to deliver by the deadline → **the payer reclaims the funds.** Money *kembali*.
+
+**The key insight.** Because the deliverable is on-chain, "delivered" is a *deterministic* fact — so
+Kembali needs **no arbiter, no oracle, no bond, no dispute committee.** Trustless recourse by
+construction. (Off-chain goods are a documented extension.)
+
+**Why it fits HashKey.** The deliverable is a tokenized RWA (gold, invoice, receipt NFT) or any
+ERC-721/ERC-20 ⇄ USDC.e — this is RWA settlement, HashKey's core thesis. The escrow `id` is the HSP
+mandate digest, and the mandate is **verified on-chain**, so the HSP binding is enforced, not
+decorative. Signatures validate via **EIP-1271**, so AI-agent / smart-contract wallets can pay.
+
+## Key features
+- Reversible payment escrow with atomic DvP settlement (ERC-721 and ERC-20/RWA deliverables).
+- On-chain EIP-712 HSP-mandate verification (ecrecover **and** EIP-1271 for agent wallets).
+- Relayer/agent submission — funds always pulled from the signer, not the sender.
+- Pull-payments so a blacklisted counterparty can't freeze the other party's funds.
+- Revocable bearer mandates; anti front-running via signed `settlementBinding`.
+- SafeERC20 + balance asserts (USDT-style no-bool ok; fee-on-transfer rejected).
+
+## Proof of quality
+- **34 unit tests + 1 stateful invariant.** The invariant `token.balanceOf == held + credited` holds
+  over **128,000 random** open/fulfill/refund/withdraw sequences — the money can't leak.
+- **End-to-end tested** against a live chain (the actual frontend logic: mandate build → sign → open
+  → fulfill → withdraw), plus byte-identical digest/binding cross-checks between ethers and Solidity.
+- Clean `forge lint`. Working web dApp (MetaMask, chain 177) + one-command demo deploy.
+
+## Tech stack
+Solidity 0.8.24 · Foundry (tests, invariant, deploy) · EIP-712 / EIP-1271 · ethers v6 web dApp ·
+HashKey Chain mainnet (177) · HSP v1 Mandate schema.
+
+## HSP usage
+Escrow `id` = EIP-712 HSP v1 Mandate digest (`keccak256`); the mandate (11-field v1 schema, domain
+`{name:"HSP",version:"1"}`) is verified on-chain in `open()`. Self-verify path designed (pin adapter,
+no hosted Coordinator needed). Honest note: profile-tagging of `signer`/`recipient` still to be
+reconciled with `@hsp/core` for a live Coordinator — an integration step, not a redesign.
+
+## Links
+- Repo: `<github url>`
+- Live contract (Blockscout): `https://hashkey.blockscout.com/address/<Kembali address>`
+- Demo video: `<url>`
+- Demo dApp: `web/index.html` (see DEMO.md for the exact walkthrough)
+- Deploy tx: `<tx hash>`
+
+## What's next
+Wire the live HSP Coordinator Receipt/verify loop; compliant payments (KYC/sanctions attestations) to
+match HashKey's regulated-DeFi thesis; standing autonomous agent budgets (HSP DelegationGrant); bonded
+dispute path for off-chain deliverables.
+
+## One line for the judges
+Everyone here built a gate in front of the payment. We built the door back out — trustlessly, on HSP,
+on HashKey mainnet.

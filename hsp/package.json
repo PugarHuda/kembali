@@ -1,0 +1,9 @@
+{
+  "name": "kembali-hsp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Kembali x HSP integration script (build/sign mandate, self-verify).",
+  "scripts": { "pay": "node pay.mjs" },
+  "dependencies": { "ethers": "^6.13.0" }
+}
