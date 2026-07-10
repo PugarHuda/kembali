@@ -93,11 +93,12 @@ Payer ── sign HSP mandate (id = digest) ──► open() ──► [HELD] �
 ```
 
 ## Known limitations (honest)
-- **HSP fidelity is format-level, not spec-exact.** We match the v1 Mandate struct/domain and derive
-  the same digest client/contract-side, but HSP profile-*tags* `signer`/`recipient` and pins
-  `verifyingContract` to the HSP deployment — we use plain addresses and Kembali's own address. So
-  our `paymentId` won't match a live HSP Coordinator until the tagging is reconciled via `@hsp/core`.
-  Receipts/Attestations aren't produced/verified yet (`hsp/pay.mjs` observe/verify is stubbed).
+- **HSP: canonical mandate verified off-chain against the real SDK; on-chain uses a flat variant.**
+  `hsp/selfverify.mts` builds a spec-exact canonical HSP v1 mandate (nested `Signer`/`Recipient`,
+  `uint64` deadline) and the real `@hsp/core` verifier (`eip712-eoa.v1`) returns **ACCEPT**. The
+  on-chain `open()` verifies a gas-optimized flat mandate (address/uint256); aligning the on-chain
+  digest to the canonical `mandateHash` and wiring the Coordinator Receipt/verify loop are the
+  documented next steps (`hsp/pay.mjs` observe/verify is still stubbed).
 - **Public payments only** — Compliant (KYC/sanctions) mandates are rejected; see Extensions.
 - **On-chain deliverables only** — off-chain goods/services need the bonded dispute path (Extensions).
 - **Immutable, no admin/pause** — deliberate (trustless), but a post-deploy bug means redeploy+migrate.

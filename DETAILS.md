@@ -47,9 +47,16 @@ Not a prototype — a hardened contract with an adversarial test suite:
 - **Encoding proven** — mandate digest & binding cross-checked byte-identical between the dApp (ethers) and Solidity; the full flow was executed end-to-end against a live chain.
 - **Clean `forge lint`; identical under optimizer + via-IR.** One bug found in review (ERC20 zero-item) — fixed.
 
-## HSP usage (honest)
+## HSP usage (honest, and verified against the real SDK)
 
-The escrow `id` = EIP-712 HSP v1 Mandate digest; the 11-field v1 schema with domain `{name:"HSP",version:"1"}` is verified on-chain. A self-verify path is designed (pin the adapter — no hosted Coordinator required). Reconciling HSP's profile-tagging of `signer`/`recipient` with `@hsp/core` for a live Coordinator is an integration step, not a redesign.
+We ran the **actual `@hsp/core` reference verifier** — not just the format. `hsp/selfverify.mts` builds a **spec-exact canonical HSP v1 mandate** (nested `Signer{profileId,payload}` / `Recipient{kind,payload}`, `uint64` deadline, the real `MANDATE_TYPEHASH`), computes the canonical **mandateHash** (= HSP paymentId), signs it with the `eip712-eoa.v1` SignerProfile, and the real verifier returns **`granted: true` (ACCEPT)**:
+
+```
+canonical mandateHash: 0xbef0e22bf110532be08b2c54b1bbdf50740046f459288378e2c202848de76be3
+HSP eip712-eoa.verify -> { granted: true, resolvedSubject: { scheme: "evm-address", ... } }
+```
+
+On-chain, Kembali's `open()` verifies a **gas-optimized flat mandate** (address/uint256) for cheap settlement; making the on-chain digest byte-equal to the canonical `mandateHash` (nested structs on-chain) is the documented next step. Full Coordinator Receipt/verify is the remaining integration.
 
 ## What's next
 
