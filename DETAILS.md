@@ -58,6 +58,12 @@ Not a prototype — a hardened contract with an adversarial test suite:
 - **Compliance path (built + live):** `HSPAttestationRegistry` gates payments on HSP `attests:kyc:v1` /
   `attests:sanctions:v1` — a trusted issuer attests, and `compliant(subject, caps)` returns true/false;
   demonstrated live on mainnet. Directly on HashKey's regulated-DeFi thesis.
+- **Capstone — the full loop, proven live:** a **COMPLIANT + REVERSIBLE + AGENT** payment
+  (`agent/compliant-buy.mjs`): issuer attests the buyer → compliance gate → autonomous agent opens a
+  recourse-protected escrow → seller silent → agent auto-reclaims. All three contracts composed, on
+  mainnet: [OPEN](https://hashkey.blockscout.com/tx/0xd8e11127de4e9b633577d54d250260482409aeba6f012b56a6b094a2b41af9fc) →
+  [REFUND](https://hashkey.blockscout.com/tx/0xfa49cbc9179c1ac1fbd488d7c03f8feb17d390d0e50bfa633a33890f27952b73) →
+  [WITHDRAW](https://hashkey.blockscout.com/tx/0x726779f00c8ba0cee3f8d1faa3b36be3338a3cdb705833c8f8fecd1232210224).
 
 ## HSP usage (honest, and verified against the real SDK)
 
