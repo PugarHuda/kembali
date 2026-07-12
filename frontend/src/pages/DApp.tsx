@@ -198,7 +198,7 @@ export default function DApp() {
                 <div className="field"><label>Amount · 6 dec</label><input value={form.amount} onChange={(e) => set("amount", e.target.value)} /><div className="hint">= {fmtUsdc(BigInt(form.amount || "0"))} USDC</div></div>
               </div>
               <div className="grid2">
-                <div className="field"><label>Window · sec</label><input value={form.window} onChange={(e) => set("window", e.target.value)} /></div>
+                <div className="field"><label>Window · sec</label><input value={form.window} onChange={(e) => set("window", e.target.value)} /><div className="hint">refund opens after this · use <b onClick={() => set("window", "120")} style={{ cursor: "pointer", color: "var(--accent)" }}>120</b> to demo reversal fast</div></div>
                 <div className="field"><label>Item · id / amount</label><input value={form.item} onChange={(e) => set("item", e.target.value)} /></div>
               </div>
               <div className="field"><label>Deliverable asset · DemoNFT</label><input value={form.asset} onChange={(e) => set("asset", e.target.value)} /></div>
