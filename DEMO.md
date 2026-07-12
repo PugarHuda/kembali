@@ -99,10 +99,45 @@ cast call $NFT "nextId()(uint256)" --rpc-url $RPC     # = the id you just minted
 cast send $K "revoke(bytes32)" 0x<nonce> --rpc-url $RPC --private-key $BUYER_PK
 ```
 
+## 🎬 Video script (scene-by-scene, ~3:15) — narration + what to show
+
+**[0:00–0:20] Hook**
+> *Show: title / problem.* "Every crypto payment is final. If the merchant doesn't deliver, your money's
+> gone — no chargeback. Across this hackathon, everyone built control BEFORE the payment. Nobody built
+> the way back AFTER."
+
+**[0:20–0:45] The innovation (lead with this)**
+> *Show: the flow diagram.* "Kembali isn't another escrow app — it's a new primitive: **deterministic,
+> arbiter-free recourse.** Everyone else adds a trusted party to judge delivery — an AI arbiter, a human,
+> an oracle. We *remove* it: for on-chain deliverables, 'delivered' is a fact the contract checks itself."
+
+**[0:45–1:35] Scenario A — Happy path (dApp, live mainnet)**
+> *Show: dApp, connect wallet.* "Live on HashKey mainnet." Mint kUSD → **Approve** → **Open escrow**
+> (sign the HSP mandate in the wallet). Switch to merchant → **approve deliverable** → **fulfill** →
+> **withdraw**. "Atomic delivery-vs-payment: asset to the buyer, funds to the merchant."
+
+**[1:35–2:10] Scenario B — Reversal (the wedge)**
+> New escrow, short window. Try **refund** → `TOO_EARLY` ("buyer can't rug the merchant mid-window").
+> Wait → **refund** → **withdraw**. "Merchant didn't deliver — the money comes back. *Kembali.*"
+
+**[2:10–2:45] 🤖 Agent mode (the AI × DeFi moment — don't skip)**
+> Click **🤖 Agent: autonomous recourse-protected buy**. "Now the AI-meets-DeFi part. One click: an
+> autonomous agent provisions funds and opens a protected purchase — no human babysitting. If the seller
+> doesn't deliver, the agent reclaims its own money. **Agent commerce that can't be rugged.**"
+> *(Show the log; mention it's proven live — `agent/agent-buy.mjs` ran this on mainnet.)*
+
+**[2:45–3:15] Proof + credibility (close)**
+> *Show: Blockscout tx for both flows + the agent.* "This is real — both flows and the autonomous agent,
+> proven live on mainnet. Kembali computes AND verifies the **canonical HSP paymentId on-chain**,
+> byte-identical to the reference SDK. 60 tests, a 512k-call invariant, and the on-chain bytecode is
+> byte-identical to the audited source. **Everyone built a gate in front of the payment. We built the
+> door back out — trustlessly, on HSP, with agent-safe commerce, live on HashKey Chain.**"
+
 ## Recording checklist
-- [ ] Kembali verified on Blockscout (green checkmark) — shows on screen.
+- [ ] Lead with the **primitive / no-arbiter** framing (not "it's an escrow").
 - [ ] Scenario A: HELD → fulfill → withdraw → RELEASED, buyer holds NFT.
 - [ ] Scenario B: HELD → refund reverts early → wait → refund → withdraw → REFUNDED.
-- [ ] Show one tx on Blockscout (the `Opened`/`Released` event) to prove it's real on 177.
-- [ ] 30-sec close: the empty lane (post-payment recourse) vs the 27 other submissions.
+- [ ] **🤖 Agent mode** clip — the AI×DeFi highlight.
+- [ ] Show a Blockscout tx (open/fulfill/refund + the agent tx) — prove it's real on 177.
+- [ ] Close on canonical-HSP-on-chain + 60 tests + bytecode==source.
 ```
