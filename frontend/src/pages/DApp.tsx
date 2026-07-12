@@ -122,10 +122,11 @@ export default function DApp() {
   const withdraw = () => run("Withdrawn", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "withdraw", args: [form.payToken as `0x${string}`] }));
 
   const agentBuy = () => run("🤖 Agent bought — recourse guaranteed", async () => {
-    await wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "mint", args: [address!, BigInt(form.amount)] });
-    await new Promise((r) => setTimeout(r, 1200));
-    await wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.amount)] });
-    await new Promise((r) => setTimeout(r, 1200));
+    // Wait for each tx receipt before the next — fixed sleeps race the 2s block time and open() reverts on TRANSFER_FROM_FAIL.
+    const h1 = await wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "mint", args: [address!, BigInt(form.amount)] });
+    await pc!.waitForTransactionReceipt({ hash: h1 });
+    const h2 = await wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.amount)] });
+    await pc!.waitForTransactionReceipt({ hash: h2 });
     const { hash, id } = await doOpen();
     setTimeout(() => { setView("settle"); readStatus(id); }, 400);
     return hash;
