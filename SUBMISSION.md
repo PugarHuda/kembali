@@ -49,7 +49,9 @@ decorative. Signatures validate via **EIP-1271**, so AI-agent / smart-contract w
 ## Key features
 - Reversible payment escrow with atomic DvP settlement (ERC-721 and ERC-20/RWA deliverables).
 - On-chain EIP-712 HSP-mandate verification (ecrecover **and** EIP-1271 for agent wallets).
-- Relayer/agent submission — funds always pulled from the signer, not the sender.
+- Relayer/agent submission — funds always pulled from the signer, not the sender (proven live).
+- **On-chain compliance gate** (`CompliantEscrow`): KYC/sanctions attestations enforced on-chain
+  before the reversible escrow opens — compliant *and* reversible, all on-chain.
 - Pull-payments so a blacklisted counterparty can't freeze the other party's funds.
 - Revocable bearer mandates; anti front-running via signed `settlementBinding`.
 - SafeERC20 + balance asserts (USDT-style no-bool ok; fee-on-transfer rejected).
@@ -62,7 +64,7 @@ decorative. Signatures validate via **EIP-1271**, so AI-agent / smart-contract w
   UI walkthrough + wallet connect/disconnect/reconnect (no gas), plus every core money flow executing
   **real mainnet-177 transactions through actual UI clicks** — **fulfill / atomic DvP** (payer opens →
   a *second* merchant wallet delivers the ERC-20 → RELEASED → merchant withdraws), **reversal**
-  (open → wait window → refund → withdraw), **autonomous Agent Buy** (mint → approve → open), and a
+  (open → wait window → refund → withdraw), **one-click Agent Buy** (mint → approve → open), and a
   client-side **SELF_DEAL guard** case.
 - **Both flows proven live on mainnet** (fulfill + refund).
 - **Compliant + reversible, enforced ON-CHAIN.** `CompliantEscrow.openCompliant()` requires the payer's
@@ -85,8 +87,9 @@ HashKey Chain mainnet (177) · HSP v1 Mandate schema.
 Escrow `id` = EIP-712 HSP v1 Mandate digest (`keccak256`); the mandate (11-field v1 schema, domain
 `{name:"HSP",version:"1"}`) is verified on-chain in `open()`. Beyond that flat mandate, `HSPCanonical`
 computes **and** verifies the **canonical** HSP paymentId on-chain (nested `Signer`/`Recipient`),
-byte-identical to the `@hsp/core` reference SDK (proven live). Compliance uses HSP `attests:kyc/sanctions`
-via `HSPAttestationRegistry`. The remaining step is the hosted Coordinator Receipt loop — an integration step, not a redesign.
+matching the `@hsp/core` reference SDK (proven live). Compliance uses HSP `attests:kyc/sanctions`
+in `HSPAttestationRegistry`, enforced **on-chain** by `CompliantEscrow.openCompliant()` before the
+reversible escrow opens. The remaining step is the hosted Coordinator Receipt loop — an integration step, not a redesign.
 
 ## Links
 - Repo: https://github.com/PugarHuda/kembali
