@@ -62,6 +62,16 @@ forge test            # 57 unit + 1 invariant: DvP, refund, relayer, EIP-1271, r
 Design logic was first validated as an executable model (`../scratchpad/reversefi_model.mjs`, 19 asserts)
 before porting to Solidity.
 
+**End-to-end (Playwright, drives the live dApp):**
+```bash
+cd frontend && npm i && npx playwright install chromium
+npm run e2e:ui        # UI walkthrough + wallet connect/disconnect (no gas, ~15s)
+npm run e2e           # + real mainnet-177 flows: reversal (open→refund→withdraw) & Agent Buy
+```
+An injected EIP-1193 wallet (viem, Node-side) signs and sends **real transactions** through actual UI
+clicks. Set `E2E_BASE_URL=http://localhost:4173` to test a local `npm run build && npm run preview`
+before deploying.
+
 ## Deploy to HashKey mainnet (177)
 ```bash
 export PRIVATE_KEY=0x...            # funded with HSK for gas

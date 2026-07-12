@@ -55,6 +55,70 @@ test.describe("UI walkthrough", () => {
     await expect(page.locator(".addrbox")).toContainText(KEMBALI);
     await expect(page.locator(".addrbox a")).toHaveAttribute("href", new RegExp(`address/${KEMBALI}`, "i"));
   });
+
+  test("Overview shows three stat tiles and an Idle status pill before any escrow", async ({ page }) => {
+    await page.goto("/app");
+    const tiles = page.locator(".tiles .tile .tl");
+    await expect(tiles).toHaveText(["Wallet Balance", "Active Escrow", "Window Left"]);
+    await expect(page.locator(".statuspill")).toContainText("Idle");
+    // no escrow yet → active/window tiles read the empty sentinel
+    await expect(page.locator(".tile", { hasText: "Active Escrow" })).toContainText("no escrow");
+  });
+
+  test("Overview CTAs route to Open / Settle / Agent", async ({ page }) => {
+    await page.goto("/app");
+    for (const [cta, title] of [
+      [/Open an Escrow/, "Open Escrow"], [/Settle/, "Settle"], [/Agent Buy/, "Agent"],
+    ] as [RegExp, string][]) {
+      await page.goto("/app"); // back to overview each time (CTAs only live there)
+      await page.locator(".panel .btnrow button", { hasText: cta }).click();
+      await expect(heading(page)).toHaveText(title);
+    }
+  });
+
+  test("Open form: amount hint recomputes and Kind toggles NFT↔ERC20", async ({ page }) => {
+    await page.goto("/app");
+    await nav(page, "Open Escrow").click();
+    await field(page, "Amount").fill("5000000");
+    await expect(page.locator(".field", { hasText: "Amount" }).locator(".hint")).toContainText("5.00 USDC");
+    const seg = page.locator(".field:has(label:has-text('Kind')) .seg");
+    await expect(seg.locator("button.on")).toHaveText(/NFT/);        // default kind 0
+    await seg.getByText(/ERC20/).click();
+    await expect(seg.locator("button.on")).toHaveText(/ERC20/);       // switched to kind 1
+  });
+
+  test("Settle with no escrow prompts to open one first", async ({ page }) => {
+    await page.goto("/app");
+    await nav(page, "Settle").click();
+    await expect(page.locator(".statusline")).toContainText("no escrow yet");
+    await expect(page.locator(".statusline b")).toHaveText("NONE");
+  });
+
+  test("an action without a connected wallet flashes 'Connect a wallet first'", async ({ page }) => {
+    await page.goto("/app");                                          // no wallet injected here
+    await nav(page, "Settle").click();
+    await page.locator(".actionrow", { hasText: "Fulfill" }).getByRole("button").click();
+    await expect(toast(page)).toContainText("Connect a wallet first"); // run() guard, no tx
+  });
+
+  test("Back to site returns to the landing page", async ({ page }) => {
+    await page.goto("/app");
+    await page.locator(".side-foot").click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator("h1")).toContainText("come");
+  });
+});
+
+// ---------- wallet lifecycle (real connect, no gas) ----------
+test.describe("Wallet", () => {
+  test("connect then Disconnect returns to the Connect button", async ({ page }) => {
+    await setupWallet(page);
+    await page.goto("/app");
+    await connect(page);
+    const block = page.locator(".wallet-block");
+    await block.getByRole("button", { name: "Disconnect" }).click();
+    await expect(block.getByRole("button", { name: "Connect Wallet" })).toBeVisible();
+  });
 });
 
 // ---------- REAL on-chain flows through the actual UI ----------

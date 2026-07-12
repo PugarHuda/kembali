@@ -57,6 +57,11 @@ decorative. Signatures validate via **EIP-1271**, so AI-agent / smart-contract w
 ## Proof of quality
 - **65 tests + 1 stateful invariant.** The invariant `token.balanceOf == held + credited` holds
   over **512,000 random** open/fulfill/refund/cancel/withdraw sequences — the money can't leak.
+- **12 end-to-end tests (Playwright) drive the *live* dApp** with an injected signing wallet: a full
+  UI walkthrough (no gas) plus the payer-side flows — **reversal (open → wait window → refund →
+  withdraw)** and **autonomous Agent Buy (mint → approve → open)** — executing **real mainnet-177
+  transactions through actual UI clicks.** (Merchant-side fulfill/cancel need a second wallet and are
+  covered by the Foundry suite above.)
 - **Both flows proven live on mainnet** (fulfill + refund), plus an autonomous agent and a
   compliant+reversible capstone — all real on-chain transactions.
 - **Canonical HSP paymentId hashed AND verified on-chain** (`HSPCanonical`), byte-identical to the

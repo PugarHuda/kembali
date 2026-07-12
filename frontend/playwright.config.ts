@@ -11,7 +11,7 @@ export default defineConfig({
   retries: 0,
   reporter: "list",
   use: {
-    baseURL: "https://kembali-hsp.vercel.app",
+    baseURL: process.env.E2E_BASE_URL || "https://kembali-hsp.vercel.app", // set E2E_BASE_URL to test a local preview before deploy
     headless: true,
     actionTimeout: 20_000,
     trace: "retain-on-failure",

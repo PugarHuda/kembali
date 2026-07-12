@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAccount, useChainId, useConnect, useSwitchChain, usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, useChainId, useConnect, useSwitchChain, usePublicClient, useWalletClient, useDisconnect } from "wagmi";
 import { hashTypedData } from "viem";
 import { ADDR, kembaliAbi, erc20Abi, nftAbi, hashkey, STATUS, statusColor, fmtUsdc, short, explorerAddr } from "../lib/kembali";
 import { buildMandate, MANDATE_TYPES } from "../lib/mandate";
@@ -21,7 +21,8 @@ export default function DApp() {
   const { connectAsync, connectors } = useConnect();
   const { switchChainAsync } = useSwitchChain();
   const pc = usePublicClient();
-  const { data: wallet } = useWalletClient();
+  const { data: wallet, refetch: refetchWallet } = useWalletClient();
+  const { disconnect } = useDisconnect();
   const { paymentId, setPaymentId, deliverableApproved, setDeliverableApproved, flash } = useStore();
 
   const [form, setForm] = useState({
@@ -50,13 +51,17 @@ export default function DApp() {
     }
   }
 
-  async function run(label: string, fn: () => Promise<`0x${string}` | undefined>) {
+  type Wallet = NonNullable<typeof wallet>;
+  async function run(label: string, fn: (w: Wallet) => Promise<`0x${string}` | undefined>) {
     if (!isConnected) return flash("Connect a wallet first");
-    if (!wallet) return flash("Wallet not ready — reconnect");
+    // useWalletClient's data lags a tick behind isConnected right after connect — refetch instead of failing.
+    let w = wallet;
+    if (!w) w = (await refetchWallet()).data ?? undefined;
+    if (!w) return flash("Wallet not ready — reconnect");
     try {
       await ensureChain();
       flash(label + "…");
-      const hash = await fn();
+      const hash = await fn(w);
       if (hash && pc) await pc.waitForTransactionReceipt({ hash });
       flash(label + " ✓");
       refreshBalance();
@@ -80,14 +85,14 @@ export default function DApp() {
   useEffect(() => { if (paymentId) readStatus(); /* eslint-disable-next-line */ }, [paymentId]);
 
   // ---- actions ----
-  const mintKusd = () => run("Minted 1000 kUSD", async () =>
-    wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "mint", args: [address!, 1_000_000000n] }));
-  const mintNft = () => run("Minted demo NFT", async () =>
-    wallet!.writeContract({ address: form.asset as `0x${string}`, abi: nftAbi, functionName: "mint", args: [address!] }));
-  const approve = () => run("Approved pay token", async () =>
-    wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.amount)] }));
+  const mintKusd = () => run("Minted 1000 kUSD", async (w) =>
+    w.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "mint", args: [address!, 1_000_000000n] }));
+  const mintNft = () => run("Minted demo NFT", async (w) =>
+    w.writeContract({ address: form.asset as `0x${string}`, abi: nftAbi, functionName: "mint", args: [address!] }));
+  const approve = () => run("Approved pay token", async (w) =>
+    w.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.amount)] }));
 
-  async function doOpen() {
+  async function doOpen(w: Wallet) {
     await ensureChain();
     const now = (await pc!.getBlock({ blockTag: "latest" })).timestamp;
     const { domain, message } = buildMandate({
@@ -95,40 +100,40 @@ export default function DApp() {
       amount: BigInt(form.amount), merchant: form.merchant as `0x${string}`, asset: form.asset as `0x${string}`,
       item: BigInt(form.item), kind: Number(form.kind), window: BigInt(form.window), now,
     });
-    const signature = await wallet!.signTypedData({ account: address!, domain, types: MANDATE_TYPES, primaryType: "Mandate", message });
+    const signature = await w.signTypedData({ account: address!, domain, types: MANDATE_TYPES, primaryType: "Mandate", message });
     const id = hashTypedData({ domain, types: MANDATE_TYPES, primaryType: "Mandate", message });
-    const hash = await wallet!.writeContract({
+    const hash = await w.writeContract({
       address: ADDR.kembali, abi: kembaliAbi, functionName: "open",
       args: [message as any, signature, form.merchant as `0x${string}`, form.asset as `0x${string}`, BigInt(form.item), Number(form.kind), BigInt(form.window)],
     });
     setPaymentId(id); setDeliverableApproved(false);
     return { hash, id };
   }
-  const open = () => run("Escrow opened", async () => {
-    const { hash } = await doOpen();
+  const open = () => run("Escrow opened", async (w) => {
+    const { hash } = await doOpen(w);
     setTimeout(() => setView("settle"), 400); // status is refreshed by run() after the receipt
     return hash;
   });
 
-  const approveDeliverable = () => run("Deliverable approved", async () => {
+  const approveDeliverable = () => run("Deliverable approved", async (w) => {
     const h = Number(form.kind) === 0
-      ? await wallet!.writeContract({ address: form.asset as `0x${string}`, abi: nftAbi, functionName: "setApprovalForAll", args: [ADDR.kembali, true] })
-      : await wallet!.writeContract({ address: form.asset as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.item)] });
+      ? await w.writeContract({ address: form.asset as `0x${string}`, abi: nftAbi, functionName: "setApprovalForAll", args: [ADDR.kembali, true] })
+      : await w.writeContract({ address: form.asset as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.item)] });
     setDeliverableApproved(true);
     return h;
   });
-  const fulfill = () => run("Delivered — merchant credited", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "fulfill", args: [paymentId as `0x${string}`] }));
-  const refund = () => run("Refund credited to payer", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "refund", args: [paymentId as `0x${string}`] }));
-  const cancel = () => run("Cancelled — payer credited", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "cancel", args: [paymentId as `0x${string}`] }));
-  const withdraw = () => run("Withdrawn", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "withdraw", args: [form.payToken as `0x${string}`] }));
+  const fulfill = () => run("Delivered — merchant credited", async (w) => w.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "fulfill", args: [paymentId as `0x${string}`] }));
+  const refund = () => run("Refund credited to payer", async (w) => w.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "refund", args: [paymentId as `0x${string}`] }));
+  const cancel = () => run("Cancelled — payer credited", async (w) => w.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "cancel", args: [paymentId as `0x${string}`] }));
+  const withdraw = () => run("Withdrawn", async (w) => w.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "withdraw", args: [form.payToken as `0x${string}`] }));
 
-  const agentBuy = () => run("🤖 Agent bought — recourse guaranteed", async () => {
+  const agentBuy = () => run("🤖 Agent bought — recourse guaranteed", async (w) => {
     // Wait for each tx receipt before the next — fixed sleeps race the 2s block time and open() reverts on TRANSFER_FROM_FAIL.
-    const h1 = await wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "mint", args: [address!, BigInt(form.amount)] });
+    const h1 = await w.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "mint", args: [address!, BigInt(form.amount)] });
     await pc!.waitForTransactionReceipt({ hash: h1 });
-    const h2 = await wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.amount)] });
+    const h2 = await w.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.amount)] });
     await pc!.waitForTransactionReceipt({ hash: h2 });
-    const { hash } = await doOpen();
+    const { hash } = await doOpen(w);
     setTimeout(() => setView("settle"), 400); // status refreshed by run() after the receipt
     return hash;
   });
@@ -151,7 +156,10 @@ export default function DApp() {
         <div className="wallet-block">
           <div className="label" style={{ marginBottom: 6 }}>HashKey · 177</div>
           {isConnected ? (
-            <div className="mono" style={{ fontSize: 12, color: "var(--ink)" }}>{short(address, 4)}{wrongNet && <span style={{ color: "var(--accent)" }}> · wrong net</span>}</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+              <span className="mono" style={{ fontSize: 12, color: "var(--ink)" }}>{short(address, 4)}{wrongNet && <span style={{ color: "var(--accent)" }}> · wrong net</span>}</span>
+              <button className="btn ghost" style={{ padding: "2px 8px", fontSize: 11 }} onClick={() => disconnect()}>Disconnect</button>
+            </div>
           ) : (
             <button className="btn accent" style={{ width: "100%", justifyContent: "center" }} onClick={connect}>Connect Wallet</button>
           )}
