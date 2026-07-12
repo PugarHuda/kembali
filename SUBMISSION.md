@@ -78,6 +78,7 @@ reconciled with `@hsp/core` for a live Coordinator — an integration step, not 
   - Kembali: https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d
   - DemoUSDC: `0x481fE34ed995603abdB9998b7eCc8811e2707d87`
   - DemoNFT: `0x6091e0111fB0F94fAE4b9D3Bbb0c36dD72D43454`
+  - HSPCanonical (on-chain canonical HSP mandateHash, == reference SDK): `0xeE6FE902336Eb6Ce59a5dcAace28a7d4b832925C`
 - Demo video: `<url>` (record via DEMO.md, add after)
 
 ## What's next
