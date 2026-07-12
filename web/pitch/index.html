@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kembali — Pitch</title>
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#0e1729; --card:#131c31; --line:#22304d;
+    --ink:#eaf0ff; --dim:#9fb0d0; --teal:#2dd4bf; --indigo:#818cf8; --warn:#f59e0b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font:18px/1.55 -apple-system,Segoe UI,Roboto,system-ui,sans-serif;overflow:hidden}
+  #deck{height:100vh;width:100vw;position:relative}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
+    padding:6vh 8vw;opacity:0;transition:opacity .35s ease}
+  .slide.on{display:flex;opacity:1}
+  h1{font-size:clamp(34px,7vw,76px);line-height:1.05;letter-spacing:-.02em;font-weight:800}
+  h2{font-size:clamp(26px,4.6vw,46px);line-height:1.12;letter-spacing:-.01em;font-weight:800;margin-bottom:.5em}
+  .kicker{color:var(--teal);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:13px;margin-bottom:1.1rem}
+  p.lead{font-size:clamp(18px,2.4vw,26px);color:var(--ink);max-width:20ch}
+  .dim{color:var(--dim)}
+  .big{font-size:clamp(30px,5vw,58px);font-weight:800;line-height:1.1;letter-spacing:-.01em}
+  .accent{color:var(--teal)} .ind{color:var(--indigo)} .warnc{color:var(--warn)}
+  ul{list-style:none;display:flex;flex-direction:column;gap:.75rem;margin-top:1.2rem;max-width:40ch}
+  li{display:flex;gap:.7rem;align-items:flex-start;font-size:clamp(16px,2vw,22px)}
+  li b{color:var(--ink)} li .m{color:var(--teal);flex:none}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.4rem;max-width:60ch}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem}
+  .card .n{font-size:clamp(22px,3vw,34px);font-weight:800;color:var(--teal)}
+  .card .l{color:var(--dim);font-size:14px;margin-top:.2rem}
+  .row{display:flex;gap:2.5rem;flex-wrap:wrap;margin-top:1.4rem}
+  .flow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:clamp(13px,1.7vw,18px);
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.2rem;white-space:pre;overflow-x:auto;color:var(--dim);max-width:100%}
+  .flow b{color:var(--ink)} .flow .t{color:var(--teal)} .flow .w{color:var(--warn)}
+  a{color:var(--indigo);text-decoration:none;border-bottom:1px solid #ffffff22}
+  .mark{width:64px;height:64px;margin-bottom:1.4rem}
+  .foot{position:fixed;bottom:20px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:14px;color:var(--dim);font-size:13px;pointer-events:none}
+  .dots{display:flex;gap:7px}
+  .dot{width:7px;height:7px;border-radius:50%;background:#ffffff2a;transition:.2s}
+  .dot.on{background:var(--teal);width:20px;border-radius:5px}
+  .nav{position:fixed;top:0;bottom:0;width:35%;cursor:pointer;z-index:5}
+  .nav.l{left:0} .nav.r{right:0}
+  .tag{display:inline-block;background:#2dd4bf1a;color:var(--teal);border:1px solid #2dd4bf44;border-radius:999px;padding:.2rem .7rem;font-size:13px;font-weight:700}
+  .pill{display:inline-flex;gap:.5rem;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.35rem .8rem;font-size:14px;color:var(--dim);margin:.3rem .3rem 0 0}
+  .pill b{color:var(--ink)}
+  @media (max-width:640px){ .grid{grid-template-columns:1fr} .nav{width:28%} }
+  @media print{ .slide{display:flex!important;opacity:1!important;position:relative;height:100vh;page-break-after:always} .nav,.foot{display:none} body{overflow:visible} }
+</style>
+</head>
+<body>
+<div class="nav l" onclick="go(-1)"></div>
+<div class="nav r" onclick="go(1)"></div>
+<div id="deck">
+
+  <section class="slide">
+    <svg class="mark" viewBox="0 0 100 100" fill="none">
+      <path d="M50 20a30 30 0 1 1-28 19" stroke="#2dd4bf" stroke-width="9" stroke-linecap="round"/>
+      <path d="M20 30l6 18 16-9z" fill="#2dd4bf"/>
+      <circle cx="50" cy="50" r="11" fill="#818cf8"/>
+    </svg>
+    <h1>Kembali</h1>
+    <p class="lead" style="margin-top:1rem">Reversible stablecoin payments on HashKey Chain.</p>
+    <p class="dim" style="margin-top:1.2rem;max-width:34ch">HSP settles the payment. Kembali gives it a way back — trustlessly, no arbiter. <b class="accent">Live on mainnet.</b></p>
+    <div style="margin-top:1.6rem"><span class="tag">DeFi track · HSP · RWA</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">The problem</div>
+    <h2>Crypto payments are <span class="warnc">final</span>.</h2>
+    <p class="lead">If the merchant doesn't deliver, your money is gone. No chargeback. No recourse.</p>
+    <p class="dim" style="margin-top:1.4rem;max-width:34ch">Buyers won't transact without a way back. This is the wall between stablecoins and real commerce.</p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">The gap · this hackathon</div>
+    <h2>48 projects. One empty lane.</h2>
+    <p class="lead">Everyone builds control <b class="warnc">before</b> the payment — approvals, KYC, maker-checker, risk scanners.</p>
+    <p class="big" style="margin-top:1.4rem"><span class="accent">Nobody</span> gives the payer recourse <b>after</b>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">The solution</div>
+    <h2>Escrow bound to an on-chain deliverable + deadline.</h2>
+    <div class="flow"><b>Buyer signs 1 HSP mandate</b> → open() → <b>[HELD]</b>
+  <span class="t">├─ merchant delivers the exact asset → atomic DvP → merchant paid</span>
+  <span class="w">└─ deadline passes, undelivered → buyer reclaims. money <b>kembali</b>.</span></div>
+    <p class="dim" style="margin-top:1.3rem;max-width:40ch">Deliver → asset to buyer, funds to merchant, atomically. Don't → the buyer's money comes back.</p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">The innovation</div>
+    <h2>A new primitive:<br><span class="accent">deterministic, arbiter-free recourse.</span></h2>
+    <p class="lead">Everyone else adds a trusted party to judge delivery — an AI arbiter, a human, an oracle, a bond game.</p>
+    <p class="big" style="margin-top:1.2rem">We <span class="accent">removed</span> it.</p>
+    <p class="dim" style="margin-top:.8rem;max-width:42ch">On-chain deliverable ⇒ "delivered" is a fact the contract checks itself. No arbiter. Nothing to corrupt.</p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">Not a pitch deck claim — proven</div>
+    <h2>Both flows live on HashKey mainnet.</h2>
+    <div class="grid">
+      <div class="card"><div class="n">Fulfill</div><div class="l">atomic DvP — asset→buyer, funds→merchant. Real tx on 177.</div></div>
+      <div class="card"><div class="n">Reversal</div><div class="l">merchant silent → buyer reclaimed. Money kembali. Real tx on 177.</div></div>
+    </div>
+    <p class="dim" style="margin-top:1.2rem">Plus an autonomous agent and a compliant+reversible capstone — all on-chain. <a href="https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d">Blockscout ↗</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">HSP, deeper than anyone</div>
+    <h2>Canonical HSP paymentId — hashed <span class="accent">and verified on-chain</span>.</h2>
+    <p class="lead">Spec-exact nested Signer/Recipient + uint64 deadline — <b class="accent">byte-identical to the @hsp/core reference SDK</b>.</p>
+    <p class="dim" style="margin-top:1.2rem;max-width:44ch">A live mainnet call returns the same <code>mandateHash</code> the reference verifier produces. No other submission computes the real HSP paymentId on-chain.</p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">AI × DeFi — the theme</div>
+    <h2>Agent commerce that <span class="accent">can't be rugged</span>.</h2>
+    <p class="lead">An autonomous agent buys on-chain; if the seller doesn't deliver, the agent reclaims its own funds — no human, no arbiter.</p>
+    <p class="dim" style="margin-top:1.2rem">Proven live on mainnet (<code>agent/agent-buy.mjs</code>) + one-click <b class="ind">🤖 Agent mode</b> in the dApp.</p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">HashKey's core thesis</div>
+    <h2>Compliance, on-chain.</h2>
+    <p class="lead">A trusted issuer attests HSP <code>attests:kyc:v1</code> / <code>attests:sanctions:v1</code>; payments gate on <code>compliant()</code>.</p>
+    <p class="dim" style="margin-top:1.2rem">Deployed + demonstrated live. Recourse + compliance + agents — the full regulated-DeFi loop, on mainnet.</p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">Why we win</div>
+    <h2>Unique lane. Deepest proof.</h2>
+    <ul>
+      <li><span class="m">◆</span><span><b>Only recourse</b> in 48 BUIDLs — everyone else gates before payment.</span></li>
+      <li><span class="m">◆</span><span><b>Deepest HSP</b> — canonical paymentId hashed + verified on-chain == reference SDK.</span></li>
+      <li><span class="m">◆</span><span><b>Deployed + proven</b> — both flows, agent, compliance, all live on mainnet.</span></li>
+      <li><span class="m">◆</span><span><b>Audit-grade</b> — 65 tests + a 512k-call invariant; bytecode == source.</span></li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">Proof, not promises</div>
+    <h2>Live & verifiable.</h2>
+    <div class="grid">
+      <div class="card"><div class="n">4</div><div class="l">contracts live on mainnet 177</div></div>
+      <div class="card"><div class="n">65 + 512k</div><div class="l">tests + invariant calls, 0 leaks</div></div>
+      <div class="card"><div class="n">== SDK</div><div class="l">canonical HSP paymentId on-chain</div></div>
+      <div class="card"><div class="n">bytecode</div><div class="l">== audited source (verified)</div></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>Everyone built a gate in front of the payment.</h2>
+    <p class="big"><span class="accent">We built the door back out.</span></p>
+    <p class="dim" style="margin-top:1.4rem">Trustlessly, on HSP, with agent-safe commerce & compliance — live on HashKey mainnet.</p>
+    <div style="margin-top:1.6rem">
+      <span class="pill">🔗 dApp <b>kembali-hsp.vercel.app</b></span>
+      <span class="pill">💻 <b>github.com/PugarHuda/kembali</b></span>
+      <span class="pill">⛓️ Kembali <b>0xDea6…209d</b></span>
+    </div>
+  </section>
+
+</div>
+<div class="foot"><div class="dots" id="dots"></div><span id="cnt"></span></div>
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const dots=document.getElementById('dots');
+  slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(i);dots.appendChild(d)});
+  let i=0;
+  function show(n){ i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('on',k===i));
+    [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
+    document.getElementById('cnt').textContent=(i+1)+' / '+slides.length;
+  }
+  function go(d){show(i+d)}
+  addEventListener('keydown',e=>{ if(['ArrowRight',' ','PageDown'].includes(e.key))go(1);
+    else if(['ArrowLeft','PageUp'].includes(e.key))go(-1);
+    else if(e.key==='Home')show(0); else if(e.key==='End')show(slides.length-1); });
+  let sx=0; addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+  addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>50)go(dx<0?1:-1)},{passive:true});
+  show(0);
+</script>
+</body>
+</html>

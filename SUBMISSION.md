@@ -77,6 +77,7 @@ via `HSPAttestationRegistry`. The remaining step is the hosted Coordinator Recei
 ## Links
 - Repo: https://github.com/PugarHuda/kembali
 - Live dApp: https://kembali-hsp.vercel.app
+- Pitch deck: https://kembali-hsp.vercel.app/pitch
 - **Live on HashKey mainnet (chain 177):**
   - Kembali: https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d
   - DemoUSDC: `0x481fE34ed995603abdB9998b7eCc8811e2707d87`

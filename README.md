@@ -9,7 +9,7 @@ recourse HSP lacks: funds sit in escrow against an agreed **on-chain deliverable
 The escrow `id` is an EIP-712 HSP mandate digest verified on-chain; we also compute **and** verify the
 **canonical** HSP paymentId on-chain (`HSPCanonical`, byte-identical to the `@hsp/core` reference SDK).
 
-**Live:** dApp **https://kembali-hsp.vercel.app** · Kembali on HashKey mainnet 177 [`0xDea6…209d`](https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d) · both flows (fulfill + refund) proven on-chain.
+**Live:** dApp **https://kembali-hsp.vercel.app** · pitch deck **https://kembali-hsp.vercel.app/pitch** · Kembali on HashKey mainnet 177 [`0xDea6…209d`](https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d) · both flows (fulfill + refund) proven on-chain.
 
 ## Why it's novel
 Every other project builds control **before** payment (approve-before-pay, maker-checker).
