@@ -1,5 +1,9 @@
 # 🎙️ Video narration — word-for-word (~3 min)
 
+> **Newer, fuller script:** for the combined demo + pitch walkthrough that covers every feature
+> (fulfill, reversal, agent/relayer, on-chain compliance, tech depth) with matching subtitles, use
+> **[`VIDEO.md`](VIDEO.md)** + **`subtitles.srt`**. This file is the shorter slide-only version.
+
 Screen-record https://kembali-hsp.vercel.app/pitch and read this, one line per slide (→ to advance).
 Then switch to the dApp for the live bit. That's the whole video.
 
@@ -33,10 +37,10 @@ Then switch to the dApp for the live bit. That's the whole video.
 > "And it's compliant — KYC and sanctions attestations on-chain, exactly HashKey's regulated-DeFi thesis. Also live."
 
 **Slide 10 (why we win)**
-> "So: the only recourse in the field, the deepest HSP, deployed and proven, and audit-grade — sixty-five tests and a half-million-call invariant."
+> "So: the only recourse in the field, the deepest HSP, deployed and proven, and audit-grade — seventy-two tests and a half-million-call invariant."
 
 **Slide 11 (proof)**
-> "Four contracts live on mainnet. Bytecode identical to the audited source. Everything verifiable, right now."
+> "Five contracts live on mainnet — bytecode byte-identical to the audited source. Everything verifiable, right now."
 
 **Slide 12 (close)**
 > "Everyone built a gate in front of the payment. We built the door back out — trustlessly, on HSP, live on HashKey Chain. Kembali."

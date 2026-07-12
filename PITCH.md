@@ -51,8 +51,9 @@ by construction. (Subjective/off-chain goods are a documented extension.)
 
 ## 4. Technical maturity (the part most demos skip)
 Not a prototype — a hardened contract with an adversarial test suite:
-- **57 unit + 1 stateful invariant**; the invariant `token.balanceOf == held + credited` holds over
-  **128,000 random** open/fulfill/refund/withdraw sequences → the money can't leak.
+- **72 unit + 1 stateful invariant**; the invariant `token.balanceOf == held + credited` holds over
+  **512,000 random** open/fulfill/refund/withdraw sequences → the money can't leak.
+- **15-test Playwright E2E** drives the *live* dApp with real mainnet-177 transactions.
 - **On-chain EIP-712 verification** (ecrecover **and** EIP-1271), s/v malleability rejected.
 - **Anti front-running** — terms committed in `settlementBinding`; **revocable** bearer mandates.
 - **Pull-payments** — a blacklisted counterparty can't freeze the other party's funds.
@@ -62,11 +63,11 @@ Not a prototype — a hardened contract with an adversarial test suite:
 - Working web dApp (MetaMask, chain 177) + one-command demo deploy that seeds a live scenario.
 
 ## 5. What's live vs next
-**Live:** contract + full test suite + web demo + deploy script (deploys Kembali + demo RWA/USDC,
-seeds a runnable fulfill/refund scenario on mainnet 177).
+**Live:** contract + full test suite + web dApp + deploy script; both flows proven on mainnet 177;
+**on-chain compliance gate** (`CompliantEscrow` — KYC/sanctions enforced on-chain) and **agent/relayer
+settlement** (funds pulled from the signer) both proven live.
 **Next:** wire the real HSP Coordinator Receipt/verify loop (self-verify path already designed);
-compliant payments (KYC/sanctions attestations) to match HashKey's regulated-DeFi thesis; bonded
-dispute path for off-chain deliverables.
+standing agent spend-budgets from the DelegationGrant; bonded dispute path for off-chain deliverables.
 
 ## 6. One line for the judges
 **Everyone here built a gate in front of the payment. We built the door back out — trustlessly,

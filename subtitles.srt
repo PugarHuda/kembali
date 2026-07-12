@@ -1,0 +1,251 @@
+1
+00:00:00,000 --> 00:00:04,200
+Stablecoin payments have one problem
+nobody talks about — they're final.
+
+2
+00:00:04,200 --> 00:00:09,000
+You pay, and if the merchant never
+delivers, that's it. Your money's gone.
+
+3
+00:00:09,000 --> 00:00:13,500
+No chargeback. No recourse. That's the
+wall between crypto and real commerce.
+
+4
+00:00:13,500 --> 00:00:18,000
+HSP fixed settlement — it made payments
+verifiable and final.
+
+5
+00:00:18,000 --> 00:00:22,500
+Great for trust. But finality is exactly
+what scares buyers off.
+
+6
+00:00:22,500 --> 00:00:28,000
+Look around this hackathon: everyone adds
+control before money moves.
+
+7
+00:00:28,000 --> 00:00:33,000
+Approvals, KYC, spend limits. Nobody gives
+you a way back after.
+
+8
+00:00:33,000 --> 00:00:36,500
+That's the lane Kembali owns.
+
+9
+00:00:36,500 --> 00:00:41,500
+And Kembali isn't just another escrow app —
+it's a new primitive.
+
+10
+00:00:41,500 --> 00:00:45,000
+Deterministic, arbiter-free recourse.
+
+11
+00:00:45,000 --> 00:00:50,500
+Every other escrow needs someone to judge
+whether delivery happened.
+
+12
+00:00:50,500 --> 00:00:55,000
+An oracle, a human, an AI arbiter, a bond
+game. We removed all of it.
+
+13
+00:00:55,000 --> 00:01:00,500
+Because the deliverable lives on-chain,
+"delivered" isn't an opinion —
+
+14
+00:01:00,500 --> 00:01:04,000
+it's a fact the contract checks itself.
+
+15
+00:01:04,000 --> 00:01:09,500
+Your payment sits in escrow, bound to an
+on-chain deliverable and a deadline.
+
+16
+00:01:09,500 --> 00:01:14,000
+Merchant delivers the exact asset —
+atomic swap, funds released.
+
+17
+00:01:14,000 --> 00:01:19,000
+Merchant doesn't — after the deadline,
+your money comes back. Kembali.
+
+18
+00:01:19,000 --> 00:01:24,000
+Let me show you — all of this is live on
+HashKey mainnet. Real transactions.
+
+19
+00:01:24,000 --> 00:01:28,500
+First the happy path: an atomic
+delivery-versus-payment.
+
+20
+00:01:28,500 --> 00:01:33,500
+The buyer opens an escrow — one click
+approves the stablecoin,
+
+21
+00:01:33,500 --> 00:01:38,500
+the next signs an EIP-712 HSP mandate
+right in the wallet.
+
+22
+00:01:38,500 --> 00:01:43,000
+That signature's digest is the payment ID.
+Funds are now held on-chain.
+
+23
+00:01:43,000 --> 00:01:48,500
+Now I switch to the merchant's wallet —
+approve the deliverable, hit Fulfill.
+
+24
+00:01:48,500 --> 00:01:54,500
+In one transaction the asset goes to the
+buyer and the funds release to the merchant.
+
+25
+00:01:54,500 --> 00:02:00,000
+No middleman ever touched it. Withdraw,
+and the status reads RELEASED.
+
+26
+00:02:00,000 --> 00:02:05,500
+Now the part that matters — what if the
+merchant never delivers?
+
+27
+00:02:05,500 --> 00:02:10,500
+Fresh escrow, short window. If the buyer
+tries to refund now, it reverts.
+
+28
+00:02:10,500 --> 00:02:15,500
+TOO_EARLY. The buyer can't rug the merchant
+mid-window — it's enforced on-chain.
+
+29
+00:02:15,500 --> 00:02:21,000
+We let the window pass, and now refund
+goes through.
+
+30
+00:02:21,000 --> 00:02:26,000
+Buyer withdraws — status REFUNDED.
+The money came back.
+
+31
+00:02:26,000 --> 00:02:31,000
+That's the recourse HSP alone
+doesn't give you.
+
+32
+00:02:31,000 --> 00:02:36,000
+Next — agent-safe commerce.
+This is the AI-meets-DeFi piece.
+
+33
+00:02:36,000 --> 00:02:42,000
+The escrow always pulls funds from whoever
+signed the mandate — not whoever submits it.
+
+34
+00:02:42,000 --> 00:02:47,500
+So an agent, or a relayer, can place a buy
+on your behalf and can't redirect a cent.
+
+35
+00:02:47,500 --> 00:02:53,000
+We proved it live: one wallet signs,
+a different agent wallet submits,
+
+36
+00:02:53,000 --> 00:02:58,000
+and the funds come out of the signer.
+The agent pays gas and nothing else.
+
+37
+00:02:58,000 --> 00:03:02,000
+An agent literally cannot rug you.
+
+38
+00:03:02,000 --> 00:03:07,500
+And for regulated settlement — HashKey's
+whole thesis — compliance is on-chain.
+
+39
+00:03:07,500 --> 00:03:13,500
+CompliantEscrow checks the buyer's KYC and
+sanctions attestations in an on-chain registry.
+
+40
+00:03:13,500 --> 00:03:18,500
+A hard require, before the escrow can even
+open. No attestation, it reverts.
+
+41
+00:03:18,500 --> 00:03:23,500
+Not a checkbox in some backend — it's the
+EVM saying no.
+
+42
+00:03:23,500 --> 00:03:27,500
+Compliant and reversible, both on-chain.
+
+43
+00:03:27,500 --> 00:03:32,500
+Under all of this is audit-grade
+engineering.
+
+44
+00:03:32,500 --> 00:03:38,500
+Seventy-two tests, plus an invariant that
+runs half a million random operations —
+
+45
+00:03:38,500 --> 00:03:42,500
+and proves the money can never leak.
+
+46
+00:03:42,500 --> 00:03:47,500
+Fifteen end-to-end tests drive this live
+dApp with real mainnet transactions.
+
+47
+00:03:47,500 --> 00:03:53,000
+The canonical HSP payment ID is hashed and
+verified on-chain, matching the reference SDK.
+
+48
+00:03:53,000 --> 00:03:58,500
+And the deployed bytecode is a byte-for-byte
+match to the audited source. We checked.
+
+49
+00:03:58,500 --> 00:04:02,000
+Nothing here is a mock.
+
+50
+00:04:02,000 --> 00:04:07,000
+So that's Kembali. Everyone else built a
+gate in front of the payment.
+
+51
+00:04:07,000 --> 00:04:12,500
+We built the door back out — trustlessly,
+HSP-native, live on HashKey Chain.
+
+52
+00:04:12,500 --> 00:04:16,500
+Payments that can come back.
