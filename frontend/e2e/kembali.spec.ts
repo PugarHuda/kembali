@@ -145,13 +145,15 @@ test.describe("On-chain flows (real transactions on mainnet 177)", () => {
     // Auto-switches to Settle; escrow must be HELD
     await expect(page.locator(".statusline b")).toHaveText("HELD", { timeout: 120_000 });
 
-    // Wait for the reclaim window to open, then REFUND (the core "money kembali" flow)
+    // Wait for the reclaim window to open, then REFUND (the core "money kembali" flow).
+    // The UI's "refund open" uses the client clock; the contract checks block.timestamp, which can
+    // lag a few seconds behind — an early click reverts TOO_EARLY. Retry until chain state flips.
     const refundRow = page.locator(".actionrow", { hasText: "Refund" });
     await expect(refundRow.locator(".a-note")).toContainText("refund open", { timeout: 180_000 });
-    await refundRow.getByRole("button").click();
-    await waitDone(page);
-    await page.locator(".actionrow", { hasText: "Read Status" }).getByRole("button").click();
-    await expect(page.locator(".statusline b")).toHaveText("REFUNDED", { timeout: 30_000 });
+    await expect(async () => {
+      await refundRow.getByRole("button").click();
+      await expect(page.locator(".statusline b")).toHaveText("REFUNDED", { timeout: 15_000 });
+    }).toPass({ timeout: 90_000, intervals: [3_000, 5_000, 8_000] });
 
     // Withdraw the reclaimed funds
     await page.locator(".actionrow", { hasText: "Withdraw" }).getByRole("button").click();
