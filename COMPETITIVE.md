@@ -46,8 +46,11 @@ implementation — not just HSP-shaped. Kembali's escrow uses a gas-optimized fl
 settlement. Wiring the Coordinator Receipt loop is the one remaining integration.
 
 **Q: Is it just Public payments? The chain is compliance-first.**
-A: Yes, Public-only today (Compliant mandates are explicitly rejected, not silently accepted). Compliant
-payments via KYC/sanctions attestations is the immediate roadmap and fits HashKey's regulated-DeFi thesis.
+A: The escrow is Public-safe by default (Compliant mandates are explicitly rejected, never silently
+accepted) — AND we built the compliance path: `HSPAttestationRegistry` (live on mainnet
+`0xda0c…D8D0`) lets a trusted issuer attest HSP `attests:kyc:v1` / `attests:sanctions:v1` capabilities,
+so a payment can be gated on `compliant(subject, requiredCaps)`. Demonstrated live on mainnet. This is
+exactly HashKey's regulated-DeFi thesis, on-chain.
 
 **Q: Security?**
 A: CEI + reentrancy guard on every money path; funds can only reach payer or merchant; signature

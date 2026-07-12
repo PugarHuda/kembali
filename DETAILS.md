@@ -55,6 +55,9 @@ Not a prototype — a hardened contract with an adversarial test suite:
 - **Clean `forge lint`; identical under optimizer + via-IR.** One bug found in review (ERC20 zero-item) — fixed.
 - **Deployment integrity:** the on-chain runtime bytecode is **byte-identical** to this audited source (incl. metadata) — the live mainnet contract *is* the tested code, verified.
 - **Proven live on mainnet 177:** the full reversal flow (open → refund → withdraw) executed with real transactions.
+- **Compliance path (built + live):** `HSPAttestationRegistry` gates payments on HSP `attests:kyc:v1` /
+  `attests:sanctions:v1` — a trusted issuer attests, and `compliant(subject, caps)` returns true/false;
+  demonstrated live on mainnet. Directly on HashKey's regulated-DeFi thesis.
 
 ## HSP usage (honest, and verified against the real SDK)
 
