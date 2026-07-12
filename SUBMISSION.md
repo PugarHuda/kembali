@@ -55,11 +55,13 @@ decorative. Signatures validate via **EIP-1271**, so AI-agent / smart-contract w
 - SafeERC20 + balance asserts (USDT-style no-bool ok; fee-on-transfer rejected).
 
 ## Proof of quality
-- **34 unit tests + 1 stateful invariant.** The invariant `token.balanceOf == held + credited` holds
-  over **128,000 random** open/fulfill/refund/withdraw sequences — the money can't leak.
-- **End-to-end tested** against a live chain (the actual frontend logic: mandate build → sign → open
-  → fulfill → withdraw), plus byte-identical digest/binding cross-checks between ethers and Solidity.
-- Clean `forge lint`. Working web dApp (MetaMask, chain 177) + one-command demo deploy.
+- **65 tests + 1 stateful invariant.** The invariant `token.balanceOf == held + credited` holds
+  over **512,000 random** open/fulfill/refund/cancel/withdraw sequences — the money can't leak.
+- **Both flows proven live on mainnet** (fulfill + refund), plus an autonomous agent and a
+  compliant+reversible capstone — all real on-chain transactions.
+- **Canonical HSP paymentId hashed AND verified on-chain** (`HSPCanonical`), byte-identical to the
+  `@hsp/core` reference SDK. **Deployment integrity:** on-chain bytecode == audited source.
+- Clean CI (build + test). Working web dApp (MetaMask, chain 177) + one-command demo deploy.
 
 ## Tech stack
 Solidity 0.8.24 · Foundry (tests, invariant, deploy) · EIP-712 / EIP-1271 · ethers v6 web dApp ·
@@ -67,13 +69,14 @@ HashKey Chain mainnet (177) · HSP v1 Mandate schema.
 
 ## HSP usage
 Escrow `id` = EIP-712 HSP v1 Mandate digest (`keccak256`); the mandate (11-field v1 schema, domain
-`{name:"HSP",version:"1"}`) is verified on-chain in `open()`. Self-verify path designed (pin adapter,
-no hosted Coordinator needed). Honest note: profile-tagging of `signer`/`recipient` still to be
-reconciled with `@hsp/core` for a live Coordinator — an integration step, not a redesign.
+`{name:"HSP",version:"1"}`) is verified on-chain in `open()`. Beyond that flat mandate, `HSPCanonical`
+computes **and** verifies the **canonical** HSP paymentId on-chain (nested `Signer`/`Recipient`),
+byte-identical to the `@hsp/core` reference SDK (proven live). Compliance uses HSP `attests:kyc/sanctions`
+via `HSPAttestationRegistry`. The remaining step is the hosted Coordinator Receipt loop — an integration step, not a redesign.
 
 ## Links
 - Repo: https://github.com/PugarHuda/kembali
-- Live dApp: https://kembali-dapp-hudas-projects-a8e7f558.vercel.app
+- Live dApp: https://kembali-hsp.vercel.app
 - **Live on HashKey mainnet (chain 177):**
   - Kembali: https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d
   - DemoUSDC: `0x481fE34ed995603abdB9998b7eCc8811e2707d87`

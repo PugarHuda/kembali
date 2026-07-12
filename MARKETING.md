@@ -12,7 +12,7 @@
 > ✅ Real HSP verifier: ACCEPT
 >
 > Built for the HashKey Chain Horizon Hackathon 🇯🇵 · DeFi track
-> 🔗 Demo: https://kembali-dapp-hudas-projects-a8e7f558.vercel.app
+> 🔗 Demo: https://kembali-hsp.vercel.app
 > 💻 Code: https://github.com/PugarHuda/kembali
 >
 > #HashKeyChain #HSP #DeFi #RWA
@@ -28,7 +28,7 @@
 >
 > Live on HashKey mainnet (chain 177):
 > • Kembali: 0xDea6Da93265871d828B20cace2BADd5F5e70209d
-> • Demo dApp: https://kembali-dapp-hudas-projects-a8e7f558.vercel.app
+> • Demo dApp: https://kembali-hsp.vercel.app
 > • Code: https://github.com/PugarHuda/kembali
 >
 > Chapters:
