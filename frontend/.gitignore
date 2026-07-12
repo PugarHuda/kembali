@@ -2,3 +2,6 @@ node_modules
 dist
 install.log
 .vercel
+
+test-results
+playwright-report

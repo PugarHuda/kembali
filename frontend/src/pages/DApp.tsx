@@ -60,6 +60,7 @@ export default function DApp() {
       if (hash && pc) await pc.waitForTransactionReceipt({ hash });
       flash(label + " ✓");
       refreshBalance();
+      readStatus(useStore.getState().paymentId); // read AFTER the receipt — fixed 400/600ms timeouts raced the 2s block and showed stale status
     } catch (e: any) {
       flash("Error: " + (e?.shortMessage || e?.message || "failed").slice(0, 90));
     }
@@ -104,8 +105,8 @@ export default function DApp() {
     return { hash, id };
   }
   const open = () => run("Escrow opened", async () => {
-    const { hash, id } = await doOpen();
-    setTimeout(() => { setView("settle"); readStatus(id); }, 400);
+    const { hash } = await doOpen();
+    setTimeout(() => setView("settle"), 400); // status is refreshed by run() after the receipt
     return hash;
   });
 
@@ -116,9 +117,9 @@ export default function DApp() {
     setDeliverableApproved(true);
     return h;
   });
-  const fulfill = () => run("Delivered — merchant credited", async () => { const h = await wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "fulfill", args: [paymentId as `0x${string}`] }); setTimeout(() => readStatus(), 600); return h; });
-  const refund = () => run("Refund credited to payer", async () => { const h = await wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "refund", args: [paymentId as `0x${string}`] }); setTimeout(() => readStatus(), 600); return h; });
-  const cancel = () => run("Cancelled — payer credited", async () => { const h = await wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "cancel", args: [paymentId as `0x${string}`] }); setTimeout(() => readStatus(), 600); return h; });
+  const fulfill = () => run("Delivered — merchant credited", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "fulfill", args: [paymentId as `0x${string}`] }));
+  const refund = () => run("Refund credited to payer", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "refund", args: [paymentId as `0x${string}`] }));
+  const cancel = () => run("Cancelled — payer credited", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "cancel", args: [paymentId as `0x${string}`] }));
   const withdraw = () => run("Withdrawn", async () => wallet!.writeContract({ address: ADDR.kembali, abi: kembaliAbi, functionName: "withdraw", args: [form.payToken as `0x${string}`] }));
 
   const agentBuy = () => run("🤖 Agent bought — recourse guaranteed", async () => {
@@ -127,8 +128,8 @@ export default function DApp() {
     await pc!.waitForTransactionReceipt({ hash: h1 });
     const h2 = await wallet!.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.amount)] });
     await pc!.waitForTransactionReceipt({ hash: h2 });
-    const { hash, id } = await doOpen();
-    setTimeout(() => { setView("settle"); readStatus(id); }, 400);
+    const { hash } = await doOpen();
+    setTimeout(() => setView("settle"), 400); // status refreshed by run() after the receipt
     return hash;
   });
 
