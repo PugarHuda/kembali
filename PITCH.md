@@ -14,6 +14,12 @@ approve-before-pay, maker-checker, spend limits, risk scanners. **Not one gives 
 
 > **Kembali = the reversibility layer HSP deliberately doesn't have — without breaking HSP's verifiability.**
 
+**The innovation:** it's not another escrow app — it's a **new primitive: deterministic, arbiter-free recourse.**
+Everyone else adds a trusted party to judge delivery (AI arbiter, human approver, oracle, bond game).
+Kembali *removes* it — for on-chain deliverables, "delivered" is a fact the contract checks itself, so
+recourse is trustless by construction. One reusable primitive → RWA settlement, agent commerce,
+marketplaces, subscriptions, remittance. (See INNOVATION.md.)
+
 ## 2. How it works (60 seconds)
 Funds don't go straight to the merchant. They sit in a Kembali escrow, bound to an agreed
 **on-chain deliverable + deadline**:
