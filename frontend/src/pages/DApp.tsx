@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAccount, useChainId, useConnect, useSwitchChain, usePublicClient, useWalletClient, useDisconnect } from "wagmi";
+import { useAccount, useChainId, useConnect, useSwitchChain, usePublicClient, useWalletClient, useDisconnect, useConfig } from "wagmi";
+import { getWalletClient } from "@wagmi/core";
 import { hashTypedData } from "viem";
 import { ADDR, kembaliAbi, erc20Abi, nftAbi, hashkey, STATUS, statusColor, fmtUsdc, short, explorerAddr } from "../lib/kembali";
 import { buildMandate, MANDATE_TYPES } from "../lib/mandate";
@@ -21,8 +22,9 @@ export default function DApp() {
   const { connectAsync, connectors } = useConnect();
   const { switchChainAsync } = useSwitchChain();
   const pc = usePublicClient();
-  const { data: wallet, refetch: refetchWallet } = useWalletClient();
+  const { data: wallet } = useWalletClient();
   const { disconnect, disconnectAsync } = useDisconnect();
+  const config = useConfig();
   const { paymentId, setPaymentId, deliverableApproved, setDeliverableApproved, flash } = useStore();
 
   // Default merchant is a burn placeholder, NOT ADDR.merchant — that seeded address is the demo
@@ -61,9 +63,10 @@ export default function DApp() {
   type Wallet = NonNullable<typeof wallet>;
   async function run(label: string, fn: (w: Wallet) => Promise<`0x${string}` | undefined>) {
     if (!isConnected) return flash("Connect a wallet first");
-    // useWalletClient's data lags a tick behind isConnected right after connect — refetch instead of failing.
-    let w = wallet;
-    if (!w) w = (await refetchWallet()).data ?? undefined;
+    // useWalletClient's data lags behind isConnected right after connect/reconnect. Pull the client
+    // straight from the connector on demand — reliable regardless of the hook's render timing.
+    let w = wallet as Wallet | undefined;
+    if (!w) { try { w = (await getWalletClient(config)) as Wallet; } catch { w = undefined; } }
     if (!w) return flash("Wallet not ready — reconnect");
     try {
       await ensureChain();
