@@ -10,3 +10,5 @@ playwright-report
 .vercel
 
 demo/output
+demo/vo
+demo/offsets.json

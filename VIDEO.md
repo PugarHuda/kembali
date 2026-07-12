@@ -1,10 +1,16 @@
 # 🎬 Kembali — Demo + Pitch (combined), with natural VO + subtitles
 
-> **Rendered capture:** [`media/kembali-demo.mp4`](media/kembali-demo.mp4) — a ~3-min silent screen
-> recording of the **live** dApp doing **real mainnet-177 transactions** (connect → fulfill/atomic-DvP
-> → reversal + TOO_EARLY guard → agent buy), with **captions burned in**. Regenerate anytime:
-> `cd frontend && npm run demo` (Playwright drives the live site and records to `demo/output/`).
-> Add the voice-over below (record it, or TTS the VO lines) and you have the full submission video.
+> **Rendered video:** [`media/kembali-demo.mp4`](media/kembali-demo.mp4) — a ~3-min recording of the
+> **live** dApp doing **real mainnet-177 transactions** (connect → fulfill/atomic-DvP → reversal +
+> TOO_EARLY guard → agent buy), with **captions burned in** and a **natural neural voice-over** synced
+> to the action. Full pipeline (all scripted, no manual editing):
+> ```bash
+> cd frontend
+> npm run demo:vo    # 1. edge-tts → demo/vo/<id>.mp3 (+ durations)  — narration text in demo/lines.json
+> npm run demo       # 2. Playwright drives the LIVE site, records video, logs each line's timestamp
+> npm run demo:mux   # 3. ffmpeg places each VO clip at its timestamp → media/kembali-demo.mp4
+> ```
+> Prefer your own voice? Skip step 1 and read the VO script below over the silent capture.
 
 One video (~4:40) that **explains every feature and demos it live**. Pitch-deck narrative and the
 live dApp walkthrough are merged: talk while you click. Subtitles ship in **`subtitles.srt`** — drop
