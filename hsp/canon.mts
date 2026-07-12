@@ -1,7 +1,7 @@
 // Reference target for the ON-CHAIN canonical mandateHash (src/HSPCanonical.sol).
 // Runs the real hsp/core SDK to produce the canonical HSP mandateHash for fixed inputs;
 // test/HSPCanonical.t.sol asserts the on-chain contract returns the byte-identical value,
-// and HSPCanonical is deployed live on mainnet (0xeE6FE902336Eb6Ce59a5dcAace28a7d4b832925C).
+// and HSPCanonical is deployed live on mainnet (0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A).
 //
 // Setup: git clone https://github.com/project-hsp/hsp && cd hsp && npm install
 //        cp <this file> hsp/canon.mts && npx tsx hsp/canon.mts
