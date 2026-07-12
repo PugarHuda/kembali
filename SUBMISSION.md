@@ -55,18 +55,26 @@ decorative. Signatures validate via **EIP-1271**, so AI-agent / smart-contract w
 - SafeERC20 + balance asserts (USDT-style no-bool ok; fee-on-transfer rejected).
 
 ## Proof of quality
-- **65 tests + 1 stateful invariant.** The invariant `token.balanceOf == held + credited` holds
-  over **512,000 random** open/fulfill/refund/cancel/withdraw sequences — the money can't leak.
+- **72 tests + 1 stateful invariant.** The invariant `token.balanceOf == held + credited` holds
+  over **512,000 random** open/fulfill/refund/cancel/withdraw sequences (Foundry `runs=1024×depth=500`)
+  — the money can't leak.
 - **15 end-to-end tests (Playwright) drive the *live* dApp** with injected signing wallets: a full
   UI walkthrough + wallet connect/disconnect/reconnect (no gas), plus every core money flow executing
   **real mainnet-177 transactions through actual UI clicks** — **fulfill / atomic DvP** (payer opens →
   a *second* merchant wallet delivers the ERC-20 → RELEASED → merchant withdraws), **reversal**
   (open → wait window → refund → withdraw), **autonomous Agent Buy** (mint → approve → open), and a
   client-side **SELF_DEAL guard** case.
-- **Both flows proven live on mainnet** (fulfill + refund), plus an autonomous agent and a
-  compliant+reversible capstone — all real on-chain transactions.
-- **Canonical HSP paymentId hashed AND verified on-chain** (`HSPCanonical`), byte-identical to the
-  `@hsp/core` reference SDK. **Deployment integrity:** on-chain bytecode == audited source.
+- **Both flows proven live on mainnet** (fulfill + refund).
+- **Compliant + reversible, enforced ON-CHAIN.** `CompliantEscrow.openCompliant()` requires the payer's
+  HSP KYC/sanctions attestations (`HSPAttestationRegistry`) via an on-chain `require` before opening the
+  audited Kembali escrow — not an off-chain JS check. Proven live: un-attested payer reverts
+  `NOT_COMPLIANT`; after attestation the reversible escrow opens (6 unit tests + live mainnet tx).
+- **Agent/relayer-safe, proven live.** A *different* agent wallet submits the principal's signed
+  mandate; funds are pulled from the signer, so the agent can't redirect them (unit test + live tx:
+  escrow.payer == principal, principal balance −amount, agent balance unchanged).
+- **Canonical HSP paymentId hashed AND verified on-chain** (`HSPCanonical`), matching the
+  `@hsp/core` reference SDK. **Deployment integrity:** on-chain `Kembali` & `HSPCanonical` bytecode
+  is a **byte-exact match** to the compiled source (independently diffed).
 - Clean CI (build + test). Working web dApp (MetaMask, chain 177) + one-command demo deploy.
 
 ## Tech stack
@@ -86,6 +94,7 @@ via `HSPAttestationRegistry`. The remaining step is the hosted Coordinator Recei
 - Pitch deck: https://kembali-hsp.vercel.app/pitch
 - **Live on HashKey mainnet (chain 177):**
   - Kembali: https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d
+  - CompliantEscrow (on-chain KYC/sanctions gate → reversible escrow): `0xf942DF0a93E7B50987040E72Eb8Db07A35d7a9F3`
   - DemoUSDC: `0x481fE34ed995603abdB9998b7eCc8811e2707d87`
   - DemoNFT: `0x6091e0111fB0F94fAE4b9D3Bbb0c36dD72D43454`
   - HSPCanonical (on-chain canonical HSP mandateHash + Receipt + DelegationGrant hashing + eip712-eoa verify, all == reference SDK): `0x6B99B00BD52Bc134D5658745E64DF1938592e468`

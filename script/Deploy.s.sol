@@ -5,6 +5,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {Kembali} from "../src/Kembali.sol";
 import {HSPCanonical} from "../src/HSPCanonical.sol";
 import {HSPAttestationRegistry} from "../src/HSPAttestationRegistry.sol";
+import {CompliantEscrow} from "../src/CompliantEscrow.sol";
 import {DemoUSDC} from "../src/mocks/DemoUSDC.sol";
 import {DemoNFT} from "../src/mocks/DemoNFT.sol";
 
@@ -31,6 +32,7 @@ contract Deploy is Script {
         // on-chain HSP surface is reproducible from this one script, not deployed ad-hoc.
         HSPCanonical canon = new HSPCanonical();
         HSPAttestationRegistry reg = new HSPAttestationRegistry(me); // deployer = attestation issuer
+        CompliantEscrow ce = new CompliantEscrow(address(k), address(reg)); // on-chain KYC gate → real escrow
         DemoUSDC usd = new DemoUSDC();
         DemoNFT nft = new DemoNFT();
 
@@ -39,10 +41,11 @@ contract Deploy is Script {
         nft.setApprovalForAll(address(k), true); // merchant pre-approves Kembali to pull it
         vm.stopBroadcast();
 
-        console.log("Kembali       :", address(k));
-        console.log("HSPCanonical  :", address(canon));
-        console.log("HSPRegistry   :", address(reg));
-        console.log("DemoUSDC      :", address(usd));
+        console.log("Kembali        :", address(k));
+        console.log("HSPCanonical   :", address(canon));
+        console.log("HSPRegistry    :", address(reg));
+        console.log("CompliantEscrow:", address(ce));
+        console.log("DemoUSDC       :", address(usd));
         console.log("DemoNFT       :", address(nft));
         console.log("merchant      :", me);
         console.log("payer         :", payer);

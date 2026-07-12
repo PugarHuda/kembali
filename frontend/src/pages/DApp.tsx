@@ -257,9 +257,9 @@ export default function DApp() {
         {view === "agent" && (
           <div className="view">
             <div className="agentcard">
-              <div className="eyebrow">🤖 Autonomous Protected Buy</div>
+              <div className="eyebrow">🤖 Agent-safe Protected Buy</div>
               <h2>Agent commerce that can’t be rugged.</h2>
-              <p>One click provisions funds and opens a protected purchase. If the seller doesn’t deliver within the window, the agent’s money auto-returns — recourse built into the payment itself.</p>
+              <p>One click provisions funds and opens a protected purchase. The escrow pulls funds from the <b>signed mandate</b>, not from whoever submits it — so an agent or relayer can place the buy on your behalf (EIP-1271 + relayer) and still can’t redirect your money; if the seller doesn’t deliver within the window, it auto-returns. The relayer path is proven live on-chain.</p>
               <div className="btnrow"><button className="btn accent" onClick={agentBuy}>Run Agent Buy →</button></div>
             </div>
           </div>
