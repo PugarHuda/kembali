@@ -1,10 +1,10 @@
-// Differential correctness proof: on-chain HSPCanonical (live 0xb5c7…9a5A) vs the hsp/core
+// Differential correctness proof: on-chain HSPCanonical (live 0x6B99…e468) vs the hsp/core
 // reference SDK, across 6 varied vectors (kinds, amounts, deadlines, payload lengths, domains).
 // All match => the on-chain canonical mandateHash is correct for arbitrary inputs, not one vector.
 // Setup: git clone https://github.com/project-hsp/hsp && cd hsp && npm i && cp <this> hsp/ && npx tsx hsp/canon-diff.mts
 import { keccak256, stringToBytes, encodeAbiParameters, createPublicClient, http, toHex, pad } from "viem";
 import { mandateHash, requiredCapabilitiesHash } from "./packages/core/src/derivations.js";
-const HSPC = "0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A";
+const HSPC = "0x6B99B00BD52Bc134D5658745E64DF1938592e468";
 const client = createPublicClient({ transport: http("https://mainnet.hsk.xyz") });
 const ABI = [{ type:"function", name:"mandateHash", stateMutability:"pure",
   inputs:[{name:"m",type:"tuple",components:[

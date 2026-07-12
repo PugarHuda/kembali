@@ -17,6 +17,12 @@ contract HSPCanonical {
         "Mandate(bytes32 nonce,Signer signer,bytes32 grantRef,bytes32 requirementRef,Recipient recipient,address token,uint256 amount,uint256 chainId,uint64 deadline,bytes32 settlementBinding,bytes32 requiredCapabilitiesHash)Recipient(uint8 kind,bytes payload)Signer(bytes32 profileId,bytes payload)"
     );
     bytes32 private constant EIP712_EOA = keccak256("eip712-eoa.v1");
+    bytes32 private constant RECEIPT_TYPEHASH = keccak256(
+        "ReceiptPreimage(bytes32 mandateHash,bytes32 adapterId,bytes32 adapterInstanceKey,uint64 seq,uint8 outcome,uint64 settledAt,bytes32 proofSchemaId,bytes32 adapterProofHash)"
+    );
+    bytes32 private constant GRANT_TYPEHASH = keccak256(
+        "DelegationGrant(Signer principal,Signer agent,bytes32 onchainPermissionRef,bytes32[] payerRequiredCaps,bytes32[] payerAllowedCaps,uint64 notBefore,uint64 expiry,bytes32 nonce)Signer(bytes32 profileId,bytes payload)"
+    );
 
     struct Mandate {
         bytes32 nonce;
@@ -34,6 +40,32 @@ contract HSPCanonical {
         bytes32 requiredCapabilitiesHash;
     }
 
+    // HSP Receipt (HSP.md §2.4.2) — an adapter's attestation of observed settlement.
+    struct Receipt {
+        bytes32 mandateHash;
+        bytes32 adapterId;
+        bytes32 adapterInstanceKey;
+        uint64 seq;
+        uint8 outcome;
+        uint64 settledAt;
+        bytes32 proofSchemaId;
+        bytes adapterProof; // hashed on-chain
+    }
+
+    // HSP DelegationGrant (HSP.md §2.4.1a) — the Principal authorizes an Agent (standing agent budgets).
+    struct Grant {
+        bytes32 principalProfileId;
+        bytes principalPayload;
+        bytes32 agentProfileId;
+        bytes agentPayload;
+        bytes32 onchainPermissionRef;
+        bytes32[] payerRequiredCaps;
+        bytes32[] payerAllowedCaps;
+        uint64 notBefore;
+        uint64 expiry;
+        bytes32 nonce;
+    }
+
     /// @return the canonical HSP mandateHash (EIP-712 digest) — == hsp/core's paymentId.
     function mandateHash(Mandate calldata m, string calldata name, string calldata version, address verifyingContract)
         external
@@ -41,6 +73,48 @@ contract HSPCanonical {
         returns (bytes32)
     {
         return _mandateHash(m, name, version, verifyingContract);
+    }
+
+    function _domain(string calldata name, string calldata version, uint256 chainId, address vc)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), keccak256(bytes(version)), chainId, vc));
+    }
+
+    /// @return the canonical HSP receiptHash (EIP-712) — == hsp/core's receiptHash (an adapter signs it).
+    function receiptHash(Receipt calldata r, string calldata name, string calldata version, uint256 chainId, address vc)
+        external
+        pure
+        returns (bytes32)
+    {
+        bytes memory head = abi.encode(RECEIPT_TYPEHASH, r.mandateHash, r.adapterId, r.adapterInstanceKey, r.seq);
+        bytes memory tail = abi.encode(r.outcome, r.settledAt, r.proofSchemaId, keccak256(r.adapterProof));
+        bytes32 structHash = keccak256(bytes.concat(head, tail));
+        return keccak256(abi.encodePacked("\x19\x01", _domain(name, version, chainId, vc), structHash));
+    }
+
+    /// @return the canonical HSP grantHash (EIP-712) — == hsp/core's grantHash (the Principal signs it).
+    function grantHash(Grant calldata g, string calldata name, string calldata version, uint256 chainId, address vc)
+        external
+        pure
+        returns (bytes32)
+    {
+        bytes32 principalHash =
+            keccak256(abi.encode(SIGNER_TYPEHASH, g.principalProfileId, keccak256(g.principalPayload)));
+        bytes32 agentHash = keccak256(abi.encode(SIGNER_TYPEHASH, g.agentProfileId, keccak256(g.agentPayload)));
+        bytes memory head = abi.encode(
+            GRANT_TYPEHASH,
+            principalHash,
+            agentHash,
+            g.onchainPermissionRef,
+            keccak256(abi.encodePacked(g.payerRequiredCaps)),
+            keccak256(abi.encodePacked(g.payerAllowedCaps))
+        );
+        bytes memory tail = abi.encode(g.notBefore, g.expiry, g.nonce);
+        bytes32 structHash = keccak256(bytes.concat(head, tail));
+        return keccak256(abi.encodePacked("\x19\x01", _domain(name, version, chainId, vc), structHash));
     }
 
     /// @notice Full eip712-eoa.v1 mandate verification, mirroring hsp/core's SignerProfile.verify.

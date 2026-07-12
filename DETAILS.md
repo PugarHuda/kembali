@@ -75,7 +75,7 @@ HSP eip712-eoa.verify -> { granted: true, resolvedSubject: { scheme: "evm-addres
 ```
 
 And we now compute the **canonical HSP `mandateHash` ON-CHAIN too**: `HSPCanonical` (deployed live at
-[`0xb5c7…9a5A`](https://hashkey.blockscout.com/address/0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A))
+[`0x6B99…e468`](https://hashkey.blockscout.com/address/0x6B99B00BD52Bc134D5658745E64DF1938592e468))
 implements the spec-exact nested `Signer`/`Recipient` structs + `uint64 deadline`, and a **live
 mainnet call returns the byte-identical `mandateHash`** the reference SDK produces
 (`0x623569…3933f`) — i.e., Kembali produces the *real* HSP paymentId on-chain, matching the reference
@@ -84,7 +84,13 @@ proof, low-s, recover == signer), mirroring the reference verifier's accept/reje
 still uses a gas-optimized flat mandate for cheap settlement; the
 canonical hashing is proven on-chain and off-chain — and **differential-tested across 6 varied vectors**
 (kinds, amounts up to 2²⁵⁶, deadlines up to 2⁶⁴−1, empty/long payloads, different domains): the live
-contract matches the reference SDK on every one (`hsp/canon-diff.mts`). Full Coordinator Receipt/verify is the remaining integration.
+contract matches the reference SDK on every one (`hsp/canon-diff.mts`).
+
+**The complete HSP object set, on-chain.** Beyond the mandate, `HSPCanonical` also computes the canonical
+HSP **Receipt** (`receiptHash`) and **DelegationGrant** (`grantHash`) — both **byte-identical to the
+`@hsp/core` reference SDK**, verified with live mainnet calls. So Kembali hashes/verifies *all three* HSP
+wire objects on-chain (mandate + receipt + grant). The one remaining piece is the hosted Coordinator that
+produces adapter-signed Receipts.
 
 ## What's next
 

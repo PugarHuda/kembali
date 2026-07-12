@@ -82,14 +82,15 @@ via `HSPAttestationRegistry`. The remaining step is the hosted Coordinator Recei
   - Kembali: https://hashkey.blockscout.com/address/0xDea6Da93265871d828B20cace2BADd5F5e70209d
   - DemoUSDC: `0x481fE34ed995603abdB9998b7eCc8811e2707d87`
   - DemoNFT: `0x6091e0111fB0F94fAE4b9D3Bbb0c36dD72D43454`
-  - HSPCanonical (on-chain canonical HSP mandateHash + eip712-eoa verify, == reference SDK): `0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A`
+  - HSPCanonical (on-chain canonical HSP mandateHash + Receipt + DelegationGrant hashing + eip712-eoa verify, all == reference SDK): `0x6B99B00BD52Bc134D5658745E64DF1938592e468`
   - HSPAttestationRegistry (compliance path — KYC/sanctions attestations, demonstrated live): `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0`
 - Demo video: `<url>` (record via DEMO.md, add after)
 
 ## What's next
-Wire the live HSP Coordinator Receipt/verify loop; compliant payments (KYC/sanctions attestations) to
-match HashKey's regulated-DeFi thesis; standing autonomous agent budgets (HSP DelegationGrant); bonded
-dispute path for off-chain deliverables.
+Done since v1: canonical mandate/Receipt/DelegationGrant hashing + verification on-chain (== SDK), and
+compliance (KYC/sanctions). Remaining: a hosted HSP Coordinator that produces adapter-signed Receipts;
+functional agent spend-budgets enforced from the DelegationGrant; a bonded dispute path for off-chain
+deliverables.
 
 ## One line for the judges
 Everyone here built a gate in front of the payment. We built the door back out — trustlessly, on HSP,

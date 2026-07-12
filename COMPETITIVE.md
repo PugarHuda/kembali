@@ -37,7 +37,7 @@ recourse; **AllScale** verifies merchant-side agent trust (pre-payment); **Recon
 3. **Test rigor** — 57 unit tests + a stateful invariant proven over **512,000 random calls**; clean
    lint; identical under optimizer + via-IR. Audit-grade for a hackathon.
 4. **Real HSP, on-chain** — the actual `@hsp/core` verifier ACCEPTs our canonical mandate, AND we
-   compute the **canonical HSP paymentId on-chain** (`HSPCanonical`, live at `0xb5c7…9a5A`),
+   compute the **canonical HSP paymentId on-chain** (`HSPCanonical`, live at `0x6B99…e468`),
    byte-identical to the reference SDK — provable with a live mainnet call.
 5. **Agent-ready** — EIP-1271 + relayer submission (funds pulled from the signer).
 6. **No arbiter** — deterministic on-chain delivery = trustless by construction.
@@ -54,7 +54,7 @@ contract checks itself (atomic DvP). Off-chain goods are a documented extension 
 **Q: How deep is the HSP integration, really?**
 A: Deep and verifiable. (1) The real `@hsp/core` reference verifier ACCEPTs our canonical mandate
 (`hsp/selfverify.mts`). (2) We compute the **canonical HSP `mandateHash` ON-CHAIN** — `HSPCanonical`
-(live at `0xb5c7…9a5A`) returns the byte-identical `mandateHash` the reference SDK produces, provable
+(live at `0x6B99…e468`) returns the byte-identical `mandateHash` the reference SDK produces, provable
 with a live mainnet call. So Kembali produces the *real* HSP paymentId on-chain, matching the reference
 implementation — not just HSP-shaped. Kembali's escrow uses a gas-optimized flat mandate for cheap
 settlement. Wiring the Coordinator Receipt loop is the one remaining integration.

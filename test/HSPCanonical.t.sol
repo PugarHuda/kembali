@@ -34,6 +34,51 @@ contract HSPCanonicalTest is Test {
         assertEq(got, 0x623569a794a14af48f847d9a9dd64d92166494e160b14caccd4818524cb3933f, "on-chain != hsp/core");
     }
 
+    function test_ReceiptHash_MatchesSDK() public {
+        HSPCanonical hsp = new HSPCanonical();
+        HSPCanonical.Receipt memory r = HSPCanonical.Receipt({
+            mandateHash: keccak256("m"),
+            adapterId: keccak256("adapter"),
+            adapterInstanceKey: keccak256("instance"),
+            seq: 1,
+            outcome: 0,
+            settledAt: 1700000000,
+            proofSchemaId: keccak256("schema"),
+            adapterProof: hex"abcd"
+        });
+        assertEq(
+            hsp.receiptHash(r, "HSP", "1", 177, 0xDea6Da93265871d828B20cace2BADd5F5e70209d),
+            0x050867a0c6e4c755f39a9fc076ff0dcd4152b4131d3a60003e103d28bb2bcad8,
+            "receiptHash != hsp/core"
+        );
+    }
+
+    function test_GrantHash_MatchesSDK() public {
+        HSPCanonical hsp = new HSPCanonical();
+        bytes32[] memory req = new bytes32[](1);
+        req[0] = keccak256("attests:kyc:v1");
+        bytes32[] memory allowed = new bytes32[](2);
+        allowed[0] = keccak256("attests:kyc:v1");
+        allowed[1] = keccak256("attests:sanctions:v1");
+        HSPCanonical.Grant memory g = HSPCanonical.Grant({
+            principalProfileId: keccak256("erc1271.v1"),
+            principalPayload: abi.encode(address(0x1111111111111111111111111111111111111111)),
+            agentProfileId: keccak256("eip712-eoa.v1"),
+            agentPayload: abi.encode(address(0x2222222222222222222222222222222222222222)),
+            onchainPermissionRef: keccak256("perm"),
+            payerRequiredCaps: req,
+            payerAllowedCaps: allowed,
+            notBefore: 1000,
+            expiry: 2000000000,
+            nonce: keccak256("gnonce")
+        });
+        assertEq(
+            hsp.grantHash(g, "HSP", "1", 177, 0xDea6Da93265871d828B20cace2BADd5F5e70209d),
+            0xdd10729bb20cf74a75f1ca0a0608e388fc01cba07625b0a40fa4f44b2ebcc597,
+            "grantHash != hsp/core"
+        );
+    }
+
     function test_Verify_AcceptsValidSig_RejectsWrong() public {
         HSPCanonical hsp = new HSPCanonical();
         uint256 pk = 0xB0B;
