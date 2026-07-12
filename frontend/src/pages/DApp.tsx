@@ -42,12 +42,17 @@ export default function DApp() {
   async function connect() {
     const c = connectors[0];
     if (!c) return flash("No wallet found — install MetaMask");
-    await connectAsync({ connector: c });
-    await ensureChain().catch(() => {});
+    try {
+      await connectAsync({ connector: c });
+      await ensureChain().catch(() => {});
+    } catch (e: any) {
+      flash(e?.name === "UserRejectedRequestError" ? "Connection cancelled" : "Connect failed");
+    }
   }
 
   async function run(label: string, fn: () => Promise<`0x${string}` | undefined>) {
     if (!isConnected) return flash("Connect a wallet first");
+    if (!wallet) return flash("Wallet not ready — reconnect");
     try {
       await ensureChain();
       flash(label + "…");
