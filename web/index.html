@@ -56,6 +56,10 @@
     </div>
     <button id="approve" class="alt">1. Approve</button>
     <button id="open">2. Open escrow</button>
+    <div style="margin-top:.8rem;padding-top:.8rem;border-top:1px solid #8883">
+      <button id="agentBuy" style="background:#0891b2">🤖 Agent: autonomous recourse-protected buy</button>
+      <small>One click = an autonomous agent provisions funds and opens a protected purchase. If the seller doesn't deliver, the agent's money auto-returns — agent commerce that can't be rugged.</small>
+    </div>
   </fieldset>
 
   <fieldset>
@@ -131,7 +135,7 @@ $("mintNft").onclick = () => run(async () => {
   const id = await c.nextId();
   return "Minted demo NFT #" + id + " to you. To sell it: set Merchant = your address, Item = " + id + ". tx " + tx.hash;
 });
-$("open").onclick = () => run(async () => {
+async function doOpen() {
   const me = await signer.getAddress();
   const kembali = $("kembali").value, merchant = $("merchant").value, asset = $("asset").value, token = $("token").value;
   // J3: validate inputs up front with clear errors
@@ -156,6 +160,18 @@ $("open").onclick = () => run(async () => {
   const tx = await k().open(Object.values(mandate), sig, merchant, asset, item, kind, window);
   await tx.wait(); $("pid").value = id;
   return "Escrow opened. id " + id + "\ntx " + tx.hash;
+}
+$("open").onclick = () => run(doOpen);
+// 🤖 Agent mode: an autonomous agent runs a recourse-protected purchase in one action.
+$("agentBuy").onclick = () => run(async () => {
+  const me = await signer.getAddress();
+  log("🤖 Agent acting autonomously: provisioning funds → opening a recourse-protected escrow…");
+  const usd = new ethers.Contract($("token").value,
+    ["function mint(address,uint256)", "function approve(address,uint256) returns (bool)"], signer);
+  await (await usd.mint(me, BigInt($("amount").value))).wait();
+  await (await usd.approve($("kembali").value, BigInt($("amount").value))).wait();
+  const r = await doOpen();
+  return "🤖 Agent bought — recourse guaranteed: if the seller doesn't deliver by the deadline, the agent auto-reclaims its funds.\n" + r;
 });
 const NFT_ABI = ["function setApprovalForAll(address,bool)"];
 $("approveDeliv").onclick = () => run(async () => {

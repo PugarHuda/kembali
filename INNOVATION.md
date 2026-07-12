@@ -23,10 +23,18 @@ reversibility *without breaking* HSP's verifiability. And it's HSP-native at the
 **produces and verifies the canonical HSP paymentId (mandateHash) on-chain**, byte-identical to the
 `@hsp/core` reference verifier (`HSPCanonical`, live on mainnet). No other submission completes HSP this way.
 
-### 3. Agent-safe autonomous commerce
+### 3. Agent-safe autonomous commerce (built + proven live)
 The hackathon's core theme is AI × DeFi. Kembali makes **autonomous agent payments that can't be rugged**:
 agents pay via EIP-1271 / relayer (funds pulled from the signer), and Kembali guarantees the agent's
 capital is *recoverable* if the counterparty doesn't deliver. Autonomy needs safety rails; Kembali is one.
+
+This is **shipped, not hypothetical**: a headless autonomous agent (`agent/agent-buy.mjs`) buys on-chain,
+monitors delivery, and **auto-reclaims its funds when the seller doesn't deliver — no human, no arbiter**,
+proven live on mainnet:
+[OPEN](https://hashkey.blockscout.com/tx/0x2d27876bfc64ece24364631439a7c793f6dc97e87b39f61aca9da9ced174a597) →
+[REFUND](https://hashkey.blockscout.com/tx/0x139f1139461bb14c7eceb0010d8fd3c3d37b7edf065e92aa691c54924fb97f33) →
+[WITHDRAW](https://hashkey.blockscout.com/tx/0x7931365269e205af4aaf89c096c93db34831275f6e5ecf3201bfd576940bafe2).
+The web dApp has a one-click **🤖 Agent mode** demonstrating the same.
 
 ## It's a primitive, not an app
 Kembali isn't a single product — it's a **reusable building block**. Any protocol that moves value against
