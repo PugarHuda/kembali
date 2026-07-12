@@ -17,6 +17,20 @@ gives the payer a way *back* after it moves — trustlessly, with no arbiter, pr
 only trust-minimized, deterministic recourse layer. It doesn't compete with PaymentGuard; it completes
 the picture (control before + recourse after).
 
+## The field grew to 48 — the moat holds
+A late flood of submissions clustered on **agent trust/credit** (TrustRail, Tessera, Credo, Credence,
+Sentinelfi, Noviq), **agent spend-control** (Scratch Wallet, AgentPay, Kanshi), **HSP compliance**
+(Nexash, TEGATA, PaymentGuard), and **merchant payments** (Recon, PactPay). Every one of them is
+*pre-payment control, credit, or reconciliation*. **Across all 48 BUIDLs, none does post-payment
+recourse — reversibility.** That lane is still entirely Kembali's.
+
+And Kembali isn't *only* recourse: it also covers the crowded areas — **compliance** (HSPAttestationRegistry,
+KYC/sanctions, live), **agent-safe commerce** (autonomous agent proven live), **HSP depth** (canonical
+paymentId hashed + verified on-chain == reference SDK) — unified and proven on mainnet, while many new
+entrants are still testnet or concept. Vs the closest new rivals: **Nexash** gates compliance but has no
+recourse; **AllScale** verifies merchant-side agent trust (pre-payment); **Recon** reconciles invoices
+(not recourse). Kembali is the only *reversibility primitive*, and it composes the rest.
+
 ## Moats no one else can show
 1. **Both flows proven LIVE on mainnet 177** — real tx: happy-path (atomic DvP) *and* reversal (refund).
 2. **Deployment integrity** — on-chain bytecode is **byte-identical** to the audited source.
