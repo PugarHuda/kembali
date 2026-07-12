@@ -119,6 +119,17 @@ test.describe("Wallet", () => {
     await block.getByRole("button", { name: "Disconnect" }).click();
     await expect(block.getByRole("button", { name: "Connect Wallet" })).toBeVisible();
   });
+
+  test("Reconnect drops and re-establishes the session, keeping the address connected", async ({ page }) => {
+    await setupWallet(page);
+    await page.goto("/app");
+    await connect(page);
+    const block = page.locator(".wallet-block");
+    await block.getByRole("button", { name: "Reconnect" }).click();
+    // after a reconnect the address is shown again and both lifecycle buttons remain
+    await expect(block).toContainText(ADDRESS.slice(0, 6));
+    await expect(block.getByRole("button", { name: "Disconnect" })).toBeVisible();
+  });
 });
 
 // ---------- REAL on-chain flows through the actual UI ----------

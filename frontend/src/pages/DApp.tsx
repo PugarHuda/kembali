@@ -22,7 +22,7 @@ export default function DApp() {
   const { switchChainAsync } = useSwitchChain();
   const pc = usePublicClient();
   const { data: wallet, refetch: refetchWallet } = useWalletClient();
-  const { disconnect } = useDisconnect();
+  const { disconnect, disconnectAsync } = useDisconnect();
   const { paymentId, setPaymentId, deliverableApproved, setDeliverableApproved, flash } = useStore();
 
   const [form, setForm] = useState({
@@ -49,6 +49,10 @@ export default function DApp() {
     } catch (e: any) {
       flash(e?.name === "UserRejectedRequestError" ? "Connection cancelled" : "Connect failed");
     }
+  }
+  async function reconnect() {
+    await disconnectAsync().catch(() => {}); // drop the stale session, then re-request accounts
+    await connect();
   }
 
   type Wallet = NonNullable<typeof wallet>;
@@ -156,9 +160,12 @@ export default function DApp() {
         <div className="wallet-block">
           <div className="label" style={{ marginBottom: 6 }}>HashKey · 177</div>
           {isConnected ? (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-              <span className="mono" style={{ fontSize: 12, color: "var(--ink)" }}>{short(address, 4)}{wrongNet && <span style={{ color: "var(--accent)" }}> · wrong net</span>}</span>
-              <button className="btn ghost" style={{ padding: "2px 8px", fontSize: 11 }} onClick={() => disconnect()}>Disconnect</button>
+            <div>
+              <div className="mono" style={{ fontSize: 12, color: "var(--ink)", marginBottom: 6 }}>{short(address, 4)}{wrongNet && <span style={{ color: "var(--accent)" }}> · wrong net</span>}</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button className="btn ghost" style={{ flex: 1, justifyContent: "center", padding: "3px 8px", fontSize: 11 }} onClick={reconnect}>Reconnect</button>
+                <button className="btn ghost" style={{ flex: 1, justifyContent: "center", padding: "3px 8px", fontSize: 11 }} onClick={() => disconnect()}>Disconnect</button>
+              </div>
             </div>
           ) : (
             <button className="btn accent" style={{ width: "100%", justifyContent: "center" }} onClick={connect}>Connect Wallet</button>
