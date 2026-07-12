@@ -65,7 +65,13 @@ canonical mandateHash: 0xbef0e22bf110532be08b2c54b1bbdf50740046f459288378e2c2028
 HSP eip712-eoa.verify -> { granted: true, resolvedSubject: { scheme: "evm-address", ... } }
 ```
 
-On-chain, Kembali's `open()` verifies a **gas-optimized flat mandate** (address/uint256) for cheap settlement; making the on-chain digest byte-equal to the canonical `mandateHash` (nested structs on-chain) is the documented next step. Full Coordinator Receipt/verify is the remaining integration.
+And we now compute the **canonical HSP `mandateHash` ON-CHAIN too**: `HSPCanonical` (deployed live at
+[`0xeE6F…925C`](https://hashkey.blockscout.com/address/0xeE6FE902336Eb6Ce59a5dcAace28a7d4b832925C))
+implements the spec-exact nested `Signer`/`Recipient` structs + `uint64 deadline`, and a **live
+mainnet call returns the byte-identical `mandateHash`** the reference SDK produces
+(`0x623569…3933f`) — i.e., Kembali produces the *real* HSP paymentId on-chain, matching the reference
+implementation. Kembali's `open()` still uses a gas-optimized flat mandate for cheap settlement; the
+canonical hashing is proven on-chain and off-chain. Full Coordinator Receipt/verify is the remaining integration.
 
 ## What's next
 
