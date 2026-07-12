@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { setupWallet, ADDRESS } from "./wallet";
+import { setupWallet, switchAccount, ensureGas, ADDRESS, ADDRESS_B } from "./wallet";
 
 const KEMBALI = "0xDea6Da93265871d828B20cace2BADd5F5e70209d";
 const DEAD = "0x000000000000000000000000000000000000dEaD"; // merchant != signer (avoids SELF_DEAL)
@@ -167,6 +167,59 @@ test.describe("On-chain flows (real transactions on mainnet 177)", () => {
     }).toPass({ timeout: 90_000, intervals: [3_000, 5_000, 8_000] });
 
     // Withdraw the reclaimed funds
+    await page.locator(".actionrow", { hasText: "Withdraw" }).getByRole("button").click();
+    await waitDone(page);
+  });
+
+  test("SELF_DEAL guard: opening with merchant == you is blocked before spending gas", async ({ page }) => {
+    await setupWallet(page);
+    await page.goto("/app");
+    await connect(page);
+    await nav(page, "Open Escrow").click();
+    await field(page, "Merchant").fill(ADDRESS);            // merchant == connected signer
+    await page.locator(".btnrow button", { hasText: "Open Escrow" }).click();
+    await expect(toast(page)).toContainText("SELF_DEAL");   // client guard, no revert, no gas burned
+    // and it never navigated to Settle with an escrow
+    await expect(heading(page)).toHaveText("Open Escrow");
+  });
+
+  test("fulfill (atomic DvP) end-to-end: payer opens → merchant delivers ERC20 → FULFILLED → merchant withdraws", async ({ page }) => {
+    await setupWallet(page);
+    await ensureGas(ADDRESS_B);                              // fund the throwaway merchant for gas
+    await page.goto("/app");
+    await connect(page);                                    // connected as A (payer)
+
+    // Payer funds up and opens an escrow whose deliverable is an ERC20 (kind=1), merchant = B.
+    await nav(page, "Faucet").click();
+    await page.locator(".actionrow", { hasText: "Mint 1000 test kUSD" }).getByRole("button").click();
+    await waitDone(page);
+
+    await nav(page, "Open Escrow").click();
+    await field(page, "Merchant").fill(ADDRESS_B);
+    await field(page, "Amount").fill("1000000");            // pays 1 kUSD
+    await field(page, "Window").fill("3600");               // long window — this is the fulfill path, not refund
+    await field(page, "Item").fill("1000000");              // delivers 1 unit of the ERC20 asset
+    await page.locator(".field:has(label:has-text('Kind')) .seg").getByText(/ERC20/).click(); // kind=1
+    await field(page, "Deliverable asset").fill("0x481fE34ed995603abdB9998b7eCc8811e2707d87"); // DemoUSDC as the RWA-ish ERC20
+    await page.locator(".btnrow button", { hasText: "Approve" }).click();
+    await waitDone(page);
+    await page.locator(".btnrow button", { hasText: "Open Escrow" }).click();
+    await expect(page.locator(".statusline b")).toHaveText("HELD", { timeout: 120_000 });
+
+    // Switch to the MERCHANT wallet (like a MetaMask account switch) and deliver.
+    await switchAccount(page, 1);
+    await expect(page.locator(".wallet-block")).toContainText(ADDRESS_B.slice(0, 6));
+    await nav(page, "Faucet").click();                      // merchant mints the ERC20 it will deliver
+    await page.locator(".actionrow", { hasText: "Mint 1000 test kUSD" }).getByRole("button").click();
+    await waitDone(page);
+
+    await nav(page, "Settle").click();
+    await page.locator(".actionrow", { hasText: "Approve Deliverable" }).getByRole("button").click();
+    await waitDone(page);
+    await page.locator(".actionrow", { hasText: "Fulfill" }).getByRole("button").click();
+    await expect(page.locator(".statusline b")).toHaveText("RELEASED", { timeout: 120_000 }); // atomic DvP done: asset → payer, funds released to merchant
+
+    // Merchant withdraws the escrowed funds it just earned.
     await page.locator(".actionrow", { hasText: "Withdraw" }).getByRole("button").click();
     await waitDone(page);
   });

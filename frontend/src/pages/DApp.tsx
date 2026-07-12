@@ -25,8 +25,11 @@ export default function DApp() {
   const { disconnect, disconnectAsync } = useDisconnect();
   const { paymentId, setPaymentId, deliverableApproved, setDeliverableApproved, flash } = useStore();
 
+  // Default merchant is a burn placeholder, NOT ADDR.merchant — that seeded address is the demo
+  // deployer wallet, so defaulting to it made open() revert SELF_DEAL (signer == merchant) for anyone
+  // testing with that key. A placeholder ≠ you lets the core open→refund demo work out of the box.
   const [form, setForm] = useState({
-    merchant: ADDR.merchant, payToken: ADDR.demoUsdc, amount: "100000000",
+    merchant: "0x000000000000000000000000000000000000dEaD", payToken: ADDR.demoUsdc, amount: "100000000",
     window: "86400", asset: ADDR.demoNft, item: "1", kind: "0",
   });
   const [kusd, setKusd] = useState<bigint>(0n);
@@ -97,6 +100,8 @@ export default function DApp() {
     w.writeContract({ address: form.payToken as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [ADDR.kembali, BigInt(form.amount)] }));
 
   async function doOpen(w: Wallet) {
+    if (form.merchant.toLowerCase() === address!.toLowerCase())
+      throw new Error("Merchant can't be you (SELF_DEAL) — set a different merchant address");
     await ensureChain();
     const now = (await pc!.getBlock({ blockTag: "latest" })).timestamp;
     const { domain, message } = buildMandate({
@@ -208,7 +213,7 @@ export default function DApp() {
         {view === "open" && (
           <div className="view">
             <div className="panel">
-              <div className="field"><label>Merchant · seeded, owns demo NFT #1</label><input value={form.merchant} onChange={(e) => set("merchant", e.target.value)} /></div>
+              <div className="field"><label>Merchant · counterparty (must ≠ you)</label><input value={form.merchant} onChange={(e) => set("merchant", e.target.value)} /></div>
               <div className="grid2">
                 <div className="field"><label>Pay token · DemoUSDC (6 dec)</label><input value={form.payToken} onChange={(e) => set("payToken", e.target.value)} /></div>
                 <div className="field"><label>Amount · 6 dec</label><input value={form.amount} onChange={(e) => set("amount", e.target.value)} /><div className="hint">= {fmtUsdc(BigInt(form.amount || "0"))} USDC</div></div>
