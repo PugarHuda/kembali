@@ -71,7 +71,9 @@ implements the spec-exact nested `Signer`/`Recipient` structs + `uint64 deadline
 mainnet call returns the byte-identical `mandateHash`** the reference SDK produces
 (`0x623569…3933f`) — i.e., Kembali produces the *real* HSP paymentId on-chain, matching the reference
 implementation. Kembali's `open()` still uses a gas-optimized flat mandate for cheap settlement; the
-canonical hashing is proven on-chain and off-chain. Full Coordinator Receipt/verify is the remaining integration.
+canonical hashing is proven on-chain and off-chain — and **differential-tested across 6 varied vectors**
+(kinds, amounts up to 2²⁵⁶, deadlines up to 2⁶⁴−1, empty/long payloads, different domains): the live
+contract matches the reference SDK on every one (`hsp/canon-diff.mts`). Full Coordinator Receipt/verify is the remaining integration.
 
 ## What's next
 
