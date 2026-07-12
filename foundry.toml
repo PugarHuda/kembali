@@ -5,6 +5,13 @@ libs = ["lib"]
 solc = "0.8.24"
 evm_version = "paris"   # ponytail: max L2 compat — avoid PUSH0/cancun opcodes some L2s reject
 
+# 1024 runs × 500 depth = 512,000 random open/fulfill/refund/cancel/withdraw calls the
+# accounting invariant must survive. Previously unset (default 256×500 = 128,000).
+[invariant]
+runs = 1024
+depth = 500
+fail_on_revert = false
+
 [rpc_endpoints]
 hashkey = "https://mainnet.hsk.xyz"          # HashKey Chain mainnet, chainId 177
 

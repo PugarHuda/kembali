@@ -64,7 +64,7 @@ export default function Landing() {
               <div className="steplbl"><span>Open</span><span>Protected</span><span>Deliver</span><span>Settle</span></div>
               <div className="efoot"><div>Fulfill</div><div>Refund</div></div>
             </div>
-            <div className="figcap">Fig.01 — Live Escrow</div>
+            <div className="figcap">Fig.01 — Example escrow (illustration)</div>
           </div>
         </div>
       </section>
